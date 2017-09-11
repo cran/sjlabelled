@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel Lüdecke" />
 
-<meta name="date" content="2017-07-06" />
+<meta name="date" content="2017-09-11" />
 
 <title>Labelled Data and the sjlabelled-Package</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Labelled Data and the sjlabelled-Package</h1>
 <h4 class="author"><em>Daniel Lüdecke</em></h4>
-<h4 class="date"><em>2017-07-06</em></h4>
+<h4 class="date"><em>2017-09-11</em></h4>
 
 
 
@@ -90,7 +90,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The <strong>labelled</strong>-package is intended to support <code>labelled</code> metadata structures, thus the data structure of labelled vectors in <strong>haven</strong> and <strong>labelled</strong> is the same.</p>
 <p>Labelled data in this format stores information about value labels, variable names and multiple defined missing values. However, <em>variable names</em> are only part of this information if data was imported with one of <strong>haven</strong>’s read-functions. Adding a variable label attribute is (at least up to version 1.0.0) not possible via the <code>labelled</code>-constructor method.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(haven)
-x &lt;-<span class="st"> </span><span class="kw">labelled</span>(<span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">3</span>, <span class="kw">tagged_na</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dv">4</span>:<span class="dv">1</span>),
+x &lt;-<span class="st"> </span><span class="kw">labelled</span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="kw">tagged_na</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dv">4</span><span class="op">:</span><span class="dv">1</span>),
               <span class="kw">c</span>(<span class="st">&quot;Agreement&quot;</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;Disagreement&quot;</span> =<span class="st"> </span><span class="dv">4</span>, <span class="st">&quot;First&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;c&quot;</span>),
                 <span class="st">&quot;Refused&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;a&quot;</span>), <span class="st">&quot;Not home&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;z&quot;</span>)))
 
@@ -137,7 +137,7 @@ efc &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class=
                  <span class="dt">to.data.frame =</span> <span class="ot">TRUE</span>, 
                  <span class="dt">use.value.labels =</span> <span class="ot">FALSE</span>, 
                  <span class="dt">reencode =</span> <span class="st">&quot;UTF-8&quot;</span>)
-<span class="kw">str</span>(efc$e16sex)
+<span class="kw">str</span>(efc<span class="op">$</span>e16sex)
 
 <span class="co">#&gt; $e16sex  : atomic  2 2 2 2 2 2 1 2 2 2 ...</span>
 <span class="co">#&gt;  ..- attr(*, &quot;value.labels&quot;)= Named chr  &quot;2&quot; &quot;1&quot;</span>
@@ -154,7 +154,7 @@ efc &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class=
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(sjlabelled)
 <span class="co"># sjlabelled-sample data, an atomic vector with label attributes</span>
 <span class="kw">data</span>(efc)
-<span class="kw">str</span>(efc$e16sex)
+<span class="kw">str</span>(efc<span class="op">$</span>e16sex)
 <span class="co">#&gt;  atomic [1:908] 2 2 2 2 2 2 1 2 2 2 ...</span>
 <span class="co">#&gt;  - attr(*, &quot;label&quot;)= chr &quot;elder's gender&quot;</span>
 <span class="co">#&gt;  - attr(*, &quot;labels&quot;)= Named num [1:2] 1 2</span>
@@ -166,11 +166,11 @@ efc &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class=
 <div id="getting-value-labels" class="section level2">
 <h2>Getting value labels</h2>
 <p>The <code>get_labels()</code>-method is a generic method to return value labels of a vector or data frame.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_labels</span>(efc$e42dep)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_labels</span>(efc<span class="op">$</span>e42dep)
 <span class="co">#&gt; [1] &quot;independent&quot;          &quot;slightly dependent&quot;   &quot;moderately dependent&quot;</span>
 <span class="co">#&gt; [4] &quot;severely dependent&quot;</span></code></pre></div>
 <p>You can prefix the value labels with the associated values or return them as named vector with the <code>include.values</code> argument.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_labels</span>(efc$e42dep, <span class="dt">include.values =</span> <span class="st">&quot;p&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_labels</span>(efc<span class="op">$</span>e42dep, <span class="dt">include.values =</span> <span class="st">&quot;p&quot;</span>)
 <span class="co">#&gt; [1] &quot;[1] independent&quot;          &quot;[2] slightly dependent&quot;  </span>
 <span class="co">#&gt; [3] &quot;[3] moderately dependent&quot; &quot;[4] severely dependent&quot;</span></code></pre></div>
 <p><code>get_labels()</code> also returns “labels” of factors, even if the factor has no label attributes.</p>
@@ -184,7 +184,7 @@ efc &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class=
 <p>If a vector has a label attribute, only these labels are returned. Non-labelled values are excluded from the output by default…</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># get labels, including tagged NA values</span>
 x &lt;-<span class="st"> </span><span class="kw">labelled</span>(
-  <span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">3</span>, <span class="kw">tagged_na</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dv">4</span>:<span class="dv">1</span>),
+  <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="kw">tagged_na</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dv">4</span><span class="op">:</span><span class="dv">1</span>),
   <span class="kw">c</span>(<span class="st">&quot;Agreement&quot;</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;Disagreement&quot;</span> =<span class="st"> </span><span class="dv">4</span>, <span class="st">&quot;First&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;c&quot;</span>),
     <span class="st">&quot;Refused&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;a&quot;</span>), <span class="st">&quot;Not home&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;z&quot;</span>))
 )
@@ -217,12 +217,12 @@ x &lt;-<span class="st"> </span><span class="kw">labelled</span>(
 <div id="setting-value-labels" class="section level2">
 <h2>Setting value labels</h2>
 <p>With <code>set_labels()</code> you can add label attributes to any vector.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">20</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">20</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
 
 <span class="co"># return new labelled vector</span>
 x &lt;-<span class="st"> </span><span class="kw">set_labels</span>(x, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;very low&quot;</span>, <span class="st">&quot;low&quot;</span>, <span class="st">&quot;mid&quot;</span>, <span class="st">&quot;hi&quot;</span>))
 x
-<span class="co">#&gt;  [1] 1 1 2 1 4 2 3 3 3 4 3 3 1 4 1 1 3 2 2 4</span>
+<span class="co">#&gt;  [1] 3 2 2 2 4 2 1 1 4 4 1 3 4 2 2 3 4 2 1 4</span>
 <span class="co">#&gt; attr(,&quot;labels&quot;)</span>
 <span class="co">#&gt; very low      low      mid       hi </span>
 <span class="co">#&gt;        1        2        3        4</span></code></pre></div>
@@ -286,11 +286,11 @@ x
 <p>You can use <code>set_labels()</code> within a pipe-workflow with <em>dplyr</em>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(efc)
 
-efc %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(c82cop1, c83cop2, c84cop3) %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">set_labels</span>(<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;not often&quot;</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;very often&quot;</span> =<span class="st"> </span><span class="dv">4</span>)) %&gt;%<span class="st"> </span>
+efc <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(c82cop1, c83cop2, c84cop3) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">set_labels</span>(<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;not often&quot;</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;very often&quot;</span> =<span class="st"> </span><span class="dv">4</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">frq</span>()
-<span class="co">#&gt; # do you feel you cope well as caregiver?</span>
+<span class="co">#&gt; # do you feel you cope well as caregiver? &lt;numeric&gt;</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val      label frq raw.prc valid.prc cum.prc</span>
 <span class="co">#&gt;    1  not often   3    0.33      0.33    0.33</span>
@@ -300,7 +300,7 @@ efc %&gt;%<span class="st"> </span>
 <span class="co">#&gt;   NA         NA   7    0.77        NA      NA</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; # do you find caregiving too demanding?</span>
+<span class="co">#&gt; # do you find caregiving too demanding? &lt;numeric&gt;</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val      label frq raw.prc valid.prc cum.prc</span>
 <span class="co">#&gt;    1  not often 186   20.48     20.62   20.62</span>
@@ -310,7 +310,7 @@ efc %&gt;%<span class="st"> </span>
 <span class="co">#&gt;   NA         NA   6    0.66        NA      NA</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends?</span>
+<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? &lt;numeric&gt;</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val      label frq raw.prc valid.prc cum.prc</span>
 <span class="co">#&gt;    1  not often 516   56.83     57.21   57.21</span>
@@ -325,7 +325,7 @@ efc %&gt;%<span class="st"> </span>
 <div id="getting-variable-labels" class="section level2">
 <h2>Getting variable labels</h2>
 <p>The <code>get_label()</code>-method returns the variable label of a vector or all variable labels from a data frame.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_label</span>(efc$e42dep)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_label</span>(efc<span class="op">$</span>e42dep)
 <span class="co">#&gt; [1] &quot;elder's dependency&quot;</span>
 
 <span class="kw">get_label</span>(efc, e42dep, e16sex, e15relat)
@@ -333,7 +333,7 @@ efc %&gt;%<span class="st"> </span>
 <span class="co">#&gt;    &quot;elder's dependency&quot;        &quot;elder's gender&quot; &quot;relationship to elder&quot;</span></code></pre></div>
 <p>If a vector has no variable label, <code>NULL</code> is returned. However, <code>get_label()</code> also allows returning a standard value instead of <code>NULL</code>, in case the vector has no label attribute. This is useful to combine with <code>deparse(substitute())</code> in function calls, so - for instance - the name of the vector can be used as default value if no variable labels are present.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dummy &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)
-testit &lt;-<span class="st"> </span>function(x) <span class="kw">get_label</span>(x, <span class="dt">def.value =</span> <span class="kw">deparse</span>(<span class="kw">substitute</span>(x)))
+testit &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">get_label</span>(x, <span class="dt">def.value =</span> <span class="kw">deparse</span>(<span class="kw">substitute</span>(x)))
 <span class="co"># returns name of vector, if it has no variable label</span>
 <span class="kw">testit</span>(dummy)
 <span class="co">#&gt; [1] &quot;dummy&quot;</span></code></pre></div>
@@ -341,24 +341,24 @@ testit &lt;-<span class="st"> </span>function(x) <span class="kw">get_label</spa
 <div id="setting-variable-labels" class="section level2">
 <h2>Setting variable labels</h2>
 <p>The <code>set_label()</code> function adds the variable label attribute to a vector. You can either return a new vector, or label an existing vector</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
 
 <span class="co"># return new vector</span>
 x &lt;-<span class="st"> </span><span class="kw">set_label</span>(x, <span class="dt">label =</span> <span class="st">&quot;Dummy-variable&quot;</span>)
 <span class="kw">str</span>(x)
-<span class="co">#&gt;  atomic [1:10] 1 1 1 3 4 1 2 1 4 4</span>
+<span class="co">#&gt;  atomic [1:10] 3 4 1 1 3 2 2 2 1 3</span>
 <span class="co">#&gt;  - attr(*, &quot;label&quot;)= chr &quot;Dummy-variable&quot;</span>
 
 <span class="co"># label existing vector</span>
 <span class="kw">set_label</span>(x) &lt;-<span class="st"> &quot;Another Dummy-variable&quot;</span>
 <span class="kw">str</span>(x)
-<span class="co">#&gt;  atomic [1:10] 1 1 1 3 4 1 2 1 4 4</span>
+<span class="co">#&gt;  atomic [1:10] 3 4 1 1 3 2 2 2 1 3</span>
 <span class="co">#&gt;  - attr(*, &quot;label&quot;)= chr &quot;Another Dummy-variable&quot;</span></code></pre></div>
 <p><code>set_label()</code> can also set variable labels for a data frame. In this case, the variable attributes get an additional <code>name</code> attribute with the vector’s name. This makes it easier to see which label belongs to which vector.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
-  <span class="dt">a =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
-  <span class="dt">b =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
-  <span class="dt">c =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
+  <span class="dt">a =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
+  <span class="dt">b =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
+  <span class="dt">c =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
 )
 x &lt;-<span class="st"> </span><span class="kw">set_label</span>(x, <span class="dt">label =</span> <span class="kw">c</span>(<span class="st">&quot;Variable A&quot;</span>,
                             <span class="st">&quot;Variable B&quot;</span>,
@@ -366,13 +366,13 @@ x &lt;-<span class="st"> </span><span class="kw">set_label</span>(x, <span class
 
 <span class="kw">str</span>(x)
 <span class="co">#&gt; 'data.frame':    10 obs. of  3 variables:</span>
-<span class="co">#&gt;  $ a: atomic  1 2 1 3 2 2 3 1 1 1</span>
+<span class="co">#&gt;  $ a: atomic  2 2 1 4 2 4 1 1 2 2</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;Variable A&quot;</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;a&quot;</span>
-<span class="co">#&gt;  $ b: atomic  2 3 1 1 3 4 3 2 4 4</span>
+<span class="co">#&gt;  $ b: atomic  3 2 1 3 2 4 4 1 1 2</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;Variable B&quot;</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;b&quot;</span>
-<span class="co">#&gt;  $ c: atomic  4 1 4 4 4 1 4 4 1 4</span>
+<span class="co">#&gt;  $ c: atomic  1 3 1 4 3 3 4 1 2 3</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;Variable C&quot;</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;c&quot;</span>
 
@@ -381,24 +381,24 @@ x &lt;-<span class="st"> </span><span class="kw">set_label</span>(x, <span class
 <span class="co">#&gt; &quot;Variable A&quot; &quot;Variable B&quot; &quot;Variable C&quot;</span></code></pre></div>
 <p>An alternative to <code>set_label()</code> is <code>var_labels()</code>, which also works within pipe-workflows. <code>var_labels()</code> requires named vectors as arguments to match the column names of the input, and set the associated variable labels.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
-  <span class="dt">a =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
-  <span class="dt">b =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
-  <span class="dt">c =</span> <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
+  <span class="dt">a =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
+  <span class="dt">b =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>),
+  <span class="dt">c =</span> <span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dv">10</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
 )
 
-x %&gt;%<span class="st"> </span>
+x <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">var_labels</span>(
     <span class="dt">a =</span> <span class="st">&quot;Variable A&quot;</span>,
     <span class="dt">b =</span> <span class="st">&quot;Variable B&quot;</span>,
     <span class="dt">c =</span> <span class="st">&quot;Variable C&quot;</span>
-  ) %&gt;%<span class="st"> </span>
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">str</span>()
 <span class="co">#&gt; 'data.frame':    10 obs. of  3 variables:</span>
-<span class="co">#&gt;  $ a: atomic  1 1 4 2 2 4 1 1 1 3</span>
+<span class="co">#&gt;  $ a: atomic  4 3 1 4 4 1 3 3 3 3</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;Variable A&quot;</span>
-<span class="co">#&gt;  $ b: atomic  1 4 3 4 3 2 3 2 3 1</span>
+<span class="co">#&gt;  $ b: atomic  1 3 3 1 4 4 4 3 1 1</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;Variable B&quot;</span>
-<span class="co">#&gt;  $ c: atomic  2 2 1 2 4 3 4 4 3 3</span>
+<span class="co">#&gt;  $ c: atomic  3 3 3 2 1 2 2 2 4 4</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;Variable C&quot;</span></code></pre></div>
 </div>
 </div>
@@ -407,21 +407,21 @@ x %&gt;%<span class="st"> </span>
 <div id="defining-missing-values" class="section level2">
 <h2>Defining missing values</h2>
 <p><code>set_na()</code> converts values of a vector or of multiple vectors in a data frame into <code>NA</code>s. With <code>as.tag = TRUE</code>, <code>set_na()</code> creates tagged <code>NA</code> values, which means that these missing values get an information tag and a value label (which is, by default, the former value that was converted to NA). You can either return a new vector/data frame, or set <code>NA</code>s into an existing vector/data frame.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">8</span>, <span class="dv">100</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>, <span class="dv">100</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
 <span class="co"># show value distribution</span>
 <span class="kw">table</span>(x)
 <span class="co">#&gt; x</span>
 <span class="co">#&gt;  1  2  3  4  5  6  7  8 </span>
-<span class="co">#&gt; 20 12 10 10 11 13 17  7</span>
+<span class="co">#&gt;  7 15 12 11 14 10 18 13</span>
 
 <span class="co"># set value 1 and 8 as tagged missings</span>
 x &lt;-<span class="st"> </span><span class="kw">set_na</span>(x, <span class="dt">na =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">8</span>), <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
 x
-<span class="co">#&gt;   [1]  5  7 NA  7  4  6  5 NA  2  4  2  7 NA  6  7  4 NA NA NA  4 NA  4  5</span>
-<span class="co">#&gt;  [24]  6  4  3  7  5  6 NA NA  6  2  3  3 NA NA  6  7  2  3  7  3  2 NA  5</span>
-<span class="co">#&gt;  [47] NA  7  6 NA NA  7  4  5  5  3  3  7  6 NA  7  3  2 NA NA  5  6  4 NA</span>
-<span class="co">#&gt;  [70] NA  2  5  6  7  6  2  4  3 NA  7  4  2  2 NA NA NA  7  7  3  5  7  5</span>
-<span class="co">#&gt;  [93]  6 NA  2  7  2  6 NA NA</span>
+<span class="co">#&gt;   [1]  7  6  2 NA  2  4  5  7  7  6  2  7  3  5 NA  6  7  6  4  2  2  2 NA</span>
+<span class="co">#&gt;  [24]  6 NA  3  3 NA  5 NA  7  4  6 NA  3  2  4  7  3  7  3  7  7  3  3  7</span>
+<span class="co">#&gt;  [47]  5  5 NA  7  2  4 NA  2  3 NA  4  6  5  2  3  2 NA  5  4 NA  5  2  7</span>
+<span class="co">#&gt;  [70]  7  2  6  4  4 NA NA  5  3  7  7 NA NA  7  3  5 NA  5 NA NA NA  6  5</span>
+<span class="co">#&gt;  [93]  2  4  2  4  5  5  7  6</span>
 <span class="co">#&gt; attr(,&quot;labels&quot;)</span>
 <span class="co">#&gt;  1  8 </span>
 <span class="co">#&gt; NA NA</span>
@@ -430,20 +430,20 @@ x
 <span class="kw">table</span>(x, <span class="dt">useNA =</span> <span class="st">&quot;always&quot;</span>)
 <span class="co">#&gt; x</span>
 <span class="co">#&gt;    2    3    4    5    6    7 &lt;NA&gt; </span>
-<span class="co">#&gt;   12   10   10   11   13   17   27</span>
+<span class="co">#&gt;   15   12   11   14   10   18   20</span>
 
 <span class="co"># now let's see, which NA's were &quot;1&quot; and which were &quot;8&quot;</span>
 <span class="kw">print_tagged_na</span>(x)
-<span class="co">#&gt;   [1]     5     7 NA(1)     7     4     6     5 NA(8)     2     4     2</span>
-<span class="co">#&gt;  [12]     7 NA(1)     6     7     4 NA(1) NA(1) NA(8)     4 NA(1)     4</span>
-<span class="co">#&gt;  [23]     5     6     4     3     7     5     6 NA(1) NA(1)     6     2</span>
-<span class="co">#&gt;  [34]     3     3 NA(1) NA(8)     6     7     2     3     7     3     2</span>
-<span class="co">#&gt;  [45] NA(1)     5 NA(8)     7     6 NA(8) NA(1)     7     4     5     5</span>
-<span class="co">#&gt;  [56]     3     3     7     6 NA(1)     7     3     2 NA(8) NA(1)     5</span>
-<span class="co">#&gt;  [67]     6     4 NA(1) NA(1)     2     5     6     7     6     2     4</span>
-<span class="co">#&gt;  [78]     3 NA(1)     7     4     2     2 NA(1) NA(1) NA(1)     7     7</span>
-<span class="co">#&gt;  [89]     3     5     7     5     6 NA(1)     2     7     2     6 NA(8)</span>
-<span class="co">#&gt; [100] NA(1)</span>
+<span class="co">#&gt;   [1]     7     6     2 NA(8)     2     4     5     7     7     6     2</span>
+<span class="co">#&gt;  [12]     7     3     5 NA(8)     6     7     6     4     2     2     2</span>
+<span class="co">#&gt;  [23] NA(8)     6 NA(8)     3     3 NA(8)     5 NA(1)     7     4     6</span>
+<span class="co">#&gt;  [34] NA(8)     3     2     4     7     3     7     3     7     7     3</span>
+<span class="co">#&gt;  [45]     3     7     5     5 NA(1)     7     2     4 NA(8)     2     3</span>
+<span class="co">#&gt;  [56] NA(1)     4     6     5     2     3     2 NA(8)     5     4 NA(8)</span>
+<span class="co">#&gt;  [67]     5     2     7     7     2     6     4     4 NA(1) NA(1)     5</span>
+<span class="co">#&gt;  [78]     3     7     7 NA(8) NA(8)     7     3     5 NA(8)     5 NA(8)</span>
+<span class="co">#&gt;  [89] NA(1) NA(1)     6     5     2     4     2     4     5     5     7</span>
+<span class="co">#&gt; [100]     6</span>
 
 x &lt;-<span class="st"> </span><span class="kw">factor</span>(<span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>))
 x
@@ -474,19 +474,19 @@ x
 <h2>Replacing specific NA with values</h2>
 <p>While <code>set_na()</code> allows you to replace values with (tagged) NA’s, <code>replace_na()</code> allows you to replace either all NA values of a vector or specific tagged NA values with a non-NA value.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(efc)
-<span class="kw">str</span>(efc$c84cop3)
+<span class="kw">str</span>(efc<span class="op">$</span>c84cop3)
 <span class="co">#&gt;  atomic [1:908] 2 3 1 3 1 3 4 2 3 1 ...</span>
 <span class="co">#&gt;  - attr(*, &quot;label&quot;)= chr &quot;does caregiving cause difficulties in your relationship with your friends?&quot;</span>
 <span class="co">#&gt;  - attr(*, &quot;labels&quot;)= Named num [1:4] 1 2 3 4</span>
 <span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr [1:4] &quot;Never&quot; &quot;Sometimes&quot; &quot;Often&quot; &quot;Always&quot;</span>
 
-efc$c84cop3 &lt;-<span class="st"> </span><span class="kw">set_na</span>(efc$c84cop3, <span class="dt">na =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
-<span class="kw">get_na</span>(efc$c84cop3, <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
+efc<span class="op">$</span>c84cop3 &lt;-<span class="st"> </span><span class="kw">set_na</span>(efc<span class="op">$</span>c84cop3, <span class="dt">na =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
+<span class="kw">get_na</span>(efc<span class="op">$</span>c84cop3, <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Sometimes     Often </span>
 <span class="co">#&gt;   &quot;NA(2)&quot;   &quot;NA(3)&quot;</span>
 
 <span class="co"># this would replace all NA's into &quot;2&quot;</span>
-dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc$c84cop3, <span class="dt">value =</span> <span class="dv">2</span>)
+dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc<span class="op">$</span>c84cop3, <span class="dt">value =</span> <span class="dv">2</span>)
 
 <span class="co"># labels of former tagged NA's are preserved</span>
 <span class="kw">get_labels</span>(dummy, <span class="dt">drop.na =</span> <span class="ot">FALSE</span>, <span class="dt">include.values =</span> <span class="st">&quot;p&quot;</span>)
@@ -498,7 +498,7 @@ dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc$c84co
 
 <span class="co"># No more NA values</span>
 <span class="kw">frq</span>(dummy)
-<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends?</span>
+<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? &lt;numeric&gt;</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val  label frq raw.prc valid.prc cum.prc</span>
 <span class="co">#&gt;    1  Never 516   56.83     56.83   56.83</span>
@@ -509,7 +509,7 @@ dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc$c84co
 
 <span class="co"># In this example, the tagged NA(2) is replaced with value 2</span>
 <span class="co"># the new value label for value 2 is &quot;restored NA&quot;</span>
-dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc$c84cop3, <span class="dt">value =</span> <span class="dv">2</span>, <span class="dt">na.label =</span> <span class="st">&quot;restored NA&quot;</span>, <span class="dt">tagged.na =</span> <span class="st">&quot;2&quot;</span>)
+dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc<span class="op">$</span>c84cop3, <span class="dt">value =</span> <span class="dv">2</span>, <span class="dt">na.label =</span> <span class="st">&quot;restored NA&quot;</span>, <span class="dt">tagged.na =</span> <span class="st">&quot;2&quot;</span>)
 
 <span class="co"># Only one tagged NA remains</span>
 <span class="kw">get_labels</span>(dummy, <span class="dt">drop.na =</span> <span class="ot">FALSE</span>, <span class="dt">include.values =</span> <span class="st">&quot;p&quot;</span>)
@@ -520,7 +520,7 @@ dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc$c84co
 
 <span class="co"># Some NA values remain</span>
 <span class="kw">frq</span>(dummy)
-<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends?</span>
+<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? &lt;numeric&gt;</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val       label frq raw.prc valid.prc cum.prc</span>
 <span class="co">#&gt;    1       Never 516   56.83     62.93   62.93</span>
@@ -531,21 +531,21 @@ dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc$c84co
 <div id="replacing-values-labels" class="section level2">
 <h2>Replacing values labels</h2>
 <p>With <code>replace_labels()</code>, you can replace (change) value labels of labelled values. This can also be used to change the labels of tagged missing values. Make sure to know the missing tag, which can be accessed via <code>get_na()</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(efc$c82cop1)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(efc<span class="op">$</span>c82cop1)
 <span class="co">#&gt;  atomic [1:908] 3 3 2 4 3 2 4 3 3 3 ...</span>
 <span class="co">#&gt;  - attr(*, &quot;label&quot;)= chr &quot;do you feel you cope well as caregiver?&quot;</span>
 <span class="co">#&gt;  - attr(*, &quot;labels&quot;)= Named num [1:4] 1 2 3 4</span>
 <span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr [1:4] &quot;never&quot; &quot;sometimes&quot; &quot;often&quot; &quot;always&quot;</span>
 
-efc$c82cop1 &lt;-<span class="st"> </span><span class="kw">set_na</span>(efc$c82cop1, <span class="dt">na =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
-<span class="kw">get_na</span>(efc$c82cop1, <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
+efc<span class="op">$</span>c82cop1 &lt;-<span class="st"> </span><span class="kw">set_na</span>(efc<span class="op">$</span>c82cop1, <span class="dt">na =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
+<span class="kw">get_na</span>(efc<span class="op">$</span>c82cop1, <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; sometimes     often </span>
 <span class="co">#&gt;   &quot;NA(2)&quot;   &quot;NA(3)&quot;</span>
 
-efc$c82cop1 &lt;-<span class="st"> </span><span class="kw">replace_labels</span>(efc$c82cop1, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;new NA label&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;2&quot;</span>)))
+efc<span class="op">$</span>c82cop1 &lt;-<span class="st"> </span><span class="kw">replace_labels</span>(efc<span class="op">$</span>c82cop1, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;new NA label&quot;</span> =<span class="st"> </span><span class="kw">tagged_na</span>(<span class="st">&quot;2&quot;</span>)))
 <span class="co">#&gt; tagged NA 'sometimes' was replaced with new value label.</span>
 
-<span class="kw">get_na</span>(efc$c82cop1, <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
+<span class="kw">get_na</span>(efc<span class="op">$</span>c82cop1, <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; new NA label        often </span>
 <span class="co">#&gt;      &quot;NA(2)&quot;      &quot;NA(3)&quot;</span></code></pre></div>
 </div>
