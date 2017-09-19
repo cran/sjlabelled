@@ -84,12 +84,13 @@ getVarLabelAttribute <- function(x) {
   }
 
   # check if vector has label attribute
-  if (!is.null(attr(x, "label", exact = T))) attr.string <- "label"
-  # check if vector has variable label attribute
-  if (!is.null(attr(x, "variable.label", exact = T))) attr.string <- "variable.label"
-
-  # not found any label yet?
-  if (is.null(attr.string)) attr.string <- "label"
+  if (!is.null(attr(x, "label", exact = T)))
+    attr.string <- "label"
+  else if (!is.null(attr(x, "variable.label", exact = T)))
+    attr.string <- "variable.label"
+  else if (is.null(attr.string))
+    # not found any label yet?
+    attr.string <- "label"
 
   attr.string
 }
@@ -106,19 +107,17 @@ getValLabelAttribute <- function(x, def.value = NULL) {
     # find first variable with labels or value.labels attribute
     for (i in seq_len(ncol(x))) {
       # has any attribute?
-      if (!is.null(attr(x[[i]], "labels", exact = T))) {
-        attr.string <- "labels"
-        break
-      } else if (!is.null(attr(x[[i]], "value.labels", exact = T))) {
-        attr.string <- "value.labels"
-        break
-      }
+      if (!is.null(attr(x[[i]], "labels", exact = T)))
+        return("labels")
+      else if (!is.null(attr(x[[i]], "value.labels", exact = T)))
+        return("value.labels")
     }
   } else {
     # check if vector has labels attribute
-    if (!is.null(attr(x, "labels", exact = T))) attr.string <- "labels"
-    # check if vector has value.labels attribute
-    if (!is.null(attr(x, "value.labels", exact = T))) attr.string <- "value.labels"
+    if (!is.null(attr(x, "labels", exact = T)))
+      attr.string <- "labels"
+    else if (!is.null(attr(x, "value.labels", exact = T)))
+      attr.string <- "value.labels"
   }
 
   attr.string
@@ -167,10 +166,15 @@ isempty <- function(x, first.only = TRUE) {
 }
 
 
-
-#' @importFrom snakecase to_any_case
 convert_case <- function(lab, case) {
-  if (!is.null(case) && !is.null(lab))
+  if (!is.null(case) && !is.null(lab)) {
+
+    # check if package available
+    if (!requireNamespace("snakecase", quietly = TRUE)) {
+      message("Package `snakecase` required for case-conversion.")
+      return(lab)
+    }
+
     snakecase::to_any_case(
       lab,
       case = case,
@@ -178,6 +182,7 @@ convert_case <- function(lab, case) {
       postprocess = " ",
       protect = "\\d"
     )
-  else
+  } else {
     lab
+  }
 }
