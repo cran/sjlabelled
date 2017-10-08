@@ -129,6 +129,22 @@ x <- set_labels(
 )
 x
 
+## ------------------------------------------------------------------------
+tmp <- data.frame(
+  a = c(1, 2, 3),
+  b = c(1, 2, 3),
+  c = c(1, 2, 3)
+)
+
+labels <- list(
+  c("one", "two", "three"),
+  c("eins", "zwei", "drei"),
+  c("un", "dos", "tres")
+)
+
+tmp <- set_labels(tmp, labels = labels)
+str(tmp)
+
 ## ----echo=FALSE, message=FALSE-------------------------------------------
 library(dplyr)
 library(sjmisc) # for frq()
@@ -151,6 +167,18 @@ dummy <- c(1, 2, 3)
 testit <- function(x) get_label(x, def.value = deparse(substitute(x)))
 # returns name of vector, if it has no variable label
 testit(dummy)
+
+## ------------------------------------------------------------------------
+data(iris)
+
+# returns no labels, because iris-data is not labelled
+get_label(iris)
+
+# returns the column name as default labels, if data is not labelled
+get_label(iris, def.value = colnames(iris))
+
+# labels are parsed in a readable way
+get_label(iris, def.value = colnames(iris), case = "parsed")
 
 ## ------------------------------------------------------------------------
 x <- sample(1:4, 10, replace = TRUE)

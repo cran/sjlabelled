@@ -64,26 +64,48 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL) {
 
   # TODO tidyr for non-supported models
 
+
   # get model terms and model frame
-  m <- purrr::map(models, ~ dplyr::slice(broom::tidy(.x, effects = "fixed"), -1))
-  mf <- purrr::map(models, ~ dplyr::select(stats::model.frame(.x), -1))
+
+  m <- purrr::map(models, ~ dplyr::slice(tidy_models(.x), -1))
+  mf <- purrr::map(models, ~ dplyr::select(get_model_frame(.x), -1))
+
 
   # get all variable labels for predictors
+
   lbs1 <- purrr::map(1:length(m), function(x) {
     terms <- unique(m[[x]]$term)
     get_label(mf[[x]], def.value = terms)
   }) %>% unlist()
 
+
+  # any empty name? if yes, use label as name
+
+  empty <- nchar(names(lbs1))
+
+  if (any(empty == 0)) {
+    empty <- which(empty == 0)
+    names(lbs1)[empty] <- lbs1[empty]
+  }
+
+
   # for categorical predictors, we have one term per
   # value (factor level), so extract these as well
-  lbs2 <- purrr::map(mf, ~ purrr::map(.x, function(x) {
-    if (is.factor(x))
-      get_labels(x)
+
+  lbs2 <- purrr::map(mf, ~ purrr::map2(.x, colnames(.x), function(.x, .y) {
+    if (is.factor(.x)) {
+      l <- get_labels(.x)
+      if (!anyNA(suppressWarnings(as.numeric(l))))
+        paste0(.y, l)
+      else
+        l
+    }
   }) %>% unlist())
 
 
   # flatten, if we have any elements. in case all predictors
   # were non-factors, list has only NULLs
+
   lbs2 <- if (!is.null(unlist(lbs2)))
     purrr::flatten_chr(lbs2)
   else
@@ -109,8 +131,14 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL) {
   lbs <- lbs[keep]
   fl <- fl[keep]
 
+
   # set default names for values
   if (is.null(names(lbs))) names(lbs) <- lbs
+
+  # do we have partial empty names? if yes, fill them
+  en <- which(nchar(names(lbs)) == 0)
+  if (!isempty(en)) names(lbs)[en] <- lbs[en]
+
 
   # check if attribute is requested
   if (mark.cat) attr(lbs, "category.value") <- fl
@@ -123,24 +151,53 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL) {
 
 
 #' @rdname get_term_labels
-#' @importFrom purrr map map2_chr
+#' @importFrom purrr map map2 flatten_chr
 #' @importFrom dplyr pull
 #' @importFrom stats model.frame
 #' @export
 get_dv_labels <- function(models, case = NULL) {
+
   # to be generic, make sure argument is a list
+
   if (!inherits(models, "list")) models <- list(models)
 
+
   # get intercept vectors
-  intercepts <- purrr::map(models, ~ dplyr::pull(stats::model.frame(.x), var = 1))
+
+  intercepts <- purrr::map(models, ~ dplyr::pull(get_model_frame(.x), var = 1))
   intercepts.names <- purrr::map(models, ~ deparse(stats::formula(.x)[[2L]]))
 
+
   # get all labels
-  lbs <- purrr::map2_chr(
+
+  lbs <- purrr::map2(
     intercepts,
     intercepts.names,
     ~ get_label(.x, def.value = .y)
   )
 
+
+  # flatten list, and check for correct elements
+
+  lbs <- purrr::flatten_chr(lbs)
+
+
+  # There are some formulas that return a rather cryptic
+  # name. In such cases, the variable name might have more
+  # than 1 element, and here we need to set a proper default
+
+  if (length(lbs) > length(models)) lbs <- "Dependent variable"
+
   convert_case(lbs, case)
+}
+
+
+
+#' @importFrom prediction find_data
+#' @importFrom stats model.frame
+get_model_frame <- function(x) {
+  if (inherits(x, c("lme", "gls", "vgam"))) {
+    prediction::find_data(x)
+  } else
+    stats::model.frame(x)
 }
