@@ -1,3 +1,18 @@
+# sjlabelled 1.0.5
+
+## General
+
+* Remove unnecessary imports.
+* Revised `lbl_df()` due to changes in the internals of `tibble::trunc_mat()`.
+
+## New functions
+
+* `as_factor()` to convert labelled vectors into factors, preserving labels.
+
+## Changes to functions
+
+* `get_dv_labels()` now supports `brmsfit`-objects from package `brms`.
+
 # sjlabelled 1.0.4
 
 ## Changes to functions
