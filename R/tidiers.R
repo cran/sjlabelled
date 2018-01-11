@@ -11,8 +11,12 @@ tidy_models <- function(model) {
     tidy_hurdle_model(model)
   else if (inherits(model, "logistf"))
     tidy_logistf_model(model)
+  else if (inherits(model, c("clm", "polr")))
+    tidy_clm_model(model)
   else if (inherits(model, "vgam"))
     tidy_vgam_model(model)
+  else if (inherits(model, "Zelig-relogit"))
+    tidy_zelig_model(model)
   else
     tidy_generic(model)
 }
@@ -22,7 +26,14 @@ tidy_models <- function(model) {
 #' @importFrom broom tidy
 tidy_generic <- function(model) {
   # tidy the model
-  broom::tidy(model, conf.int = FALSE, effects = "fixed")
+  tryCatch(
+    {
+      broom::tidy(model, conf.int = FALSE, effects = "fixed")
+    },
+    error = function(x) { NULL },
+    warning = function(x) { NULL },
+    finally = function(x) { NULL }
+  )
 }
 
 
@@ -105,8 +116,33 @@ tidy_logistf_model <- function(model) {
 }
 
 
+#' @importFrom tibble rownames_to_column
+#' @importFrom rlang .data
+#' @importFrom dplyr select
+tidy_clm_model <- function(model) {
+  # get estimates, as data frame
+  smry <- summary(model)
+  est <- smry$coefficients %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column(var = "term")
+
+  # proper column names
+  colnames(est)[1:2] <- c("term", "estimate")
+
+  dplyr::select(est, .data$term, .data$estimate)
+}
+
+
 #' @importFrom stats coef
 #' @importFrom tibble tibble
 tidy_vgam_model <- function(model) {
   tibble::tibble(term = names(stats::coef(model)))
+}
+
+#' @importFrom stats coef qnorm
+tidy_zelig_model <- function(model) {
+  if (!requireNamespace("Zelig"))
+    stop("Package `Zelig` required. Please install", call. = F)
+
+  tibble::tibble(term = names(Zelig::coef(model)))
 }

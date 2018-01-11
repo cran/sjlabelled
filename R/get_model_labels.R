@@ -16,6 +16,8 @@
 #' @param case Desired target case. Labels will automatically converted into the
 #'          specified character case. See \code{\link[snakecase]{to_any_case}} for
 #'          more details on this argument.
+#' @param ... Further arguments passed down to \code{\link[snakecase]{to_any_case}},
+#'        like \code{preprocess} or \code{postprocess}.
 #'
 #' @return For \code{get_term_labels()}, a (named) character vector with
 #'         variable labels of all model terms, which can be used, for instance,
@@ -55,10 +57,10 @@
 #'
 #' @importFrom purrr map flatten_chr
 #' @importFrom broom tidy
-#' @importFrom stats model.frame
+#' @importFrom stats model.frame coef
 #' @importFrom dplyr select slice
 #' @export
-get_term_labels <- function(models, mark.cat = FALSE, case = NULL) {
+get_term_labels <- function(models, mark.cat = FALSE, case = NULL, ...) {
   # to be generic, make sure argument is a list
   if (!inherits(models, "list")) models <- list(models)
 
@@ -74,8 +76,12 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL) {
   # get all variable labels for predictors
 
   lbs1 <- purrr::map(1:length(m), function(x) {
-    terms <- unique(m[[x]]$term)
-    get_label(mf[[x]], def.value = terms)
+    if (is.null(m[[x]])) {
+      names(stats::coef(models[[x]]))[-1]
+    } else {
+      terms <- unique(m[[x]]$term)
+      get_label(mf[[x]], def.value = terms)
+    }
   }) %>% unlist()
 
 
@@ -146,7 +152,7 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL) {
   # the vector now contains all possible labels, as named vector.
   # since ggplot uses named vectors as labels for axis-scales, matching
   # of labels is done automatically
-  convert_case(lbs, case)
+  convert_case(lbs, case, ...)
 }
 
 
@@ -155,7 +161,7 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL) {
 #' @importFrom dplyr pull
 #' @importFrom stats model.frame
 #' @export
-get_dv_labels <- function(models, case = NULL) {
+get_dv_labels <- function(models, case = NULL, ...) {
 
   # to be generic, make sure argument is a list
 
@@ -194,7 +200,7 @@ get_dv_labels <- function(models, case = NULL) {
 
   if (length(lbs) > length(models)) lbs <- "Dependent variable"
 
-  convert_case(lbs, case)
+  convert_case(lbs, case, ...)
 }
 
 
@@ -202,8 +208,10 @@ get_dv_labels <- function(models, case = NULL) {
 #' @importFrom prediction find_data
 #' @importFrom stats model.frame
 get_model_frame <- function(x) {
-  if (inherits(x, c("lme", "gls", "vgam"))) {
-    prediction::find_data(x)
-  } else
-    stats::model.frame(x)
+  if (inherits(x, c("lme", "vgam", "gee", "gls")))
+    fitfram <- prediction::find_data(x)
+  else if (inherits(x, "Zelig-relogit"))
+    fitfram <- x$zelig.out$z.out[[1]]$data
+  else
+    fitfram <- stats::model.frame(x)
 }
