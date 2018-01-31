@@ -1,3 +1,10 @@
+# sjlabelled 1.0.7
+
+## General
+
+* Cross references from `dplyr::select_helpers` were updated to `tidyselect::select_helpers`.
+* Replace deprecated arguments in `convert_case()` from call to package *snakecase*
+
 # sjlabelled 1.0.6
 
 ## Changes to functions

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel Lüdecke" />
 
-<meta name="date" content="2018-01-11" />
+<meta name="date" content="2018-01-30" />
 
 <title>Labelled Data and the sjlabelled-Package</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Labelled Data and the sjlabelled-Package</h1>
 <h4 class="author"><em>Daniel Lüdecke</em></h4>
-<h4 class="date"><em>2018-01-11</em></h4>
+<h4 class="date"><em>2018-01-30</em></h4>
 
 
 
@@ -222,7 +222,7 @@ x &lt;-<span class="st"> </span><span class="kw">labelled</span>(
 <span class="co"># return new labelled vector</span>
 x &lt;-<span class="st"> </span><span class="kw">set_labels</span>(x, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;very low&quot;</span>, <span class="st">&quot;low&quot;</span>, <span class="st">&quot;mid&quot;</span>, <span class="st">&quot;hi&quot;</span>))
 x
-<span class="co">#&gt;  [1] 2 1 2 2 1 2 2 3 2 4 4 3 3 1 4 3 4 1 2 4</span>
+<span class="co">#&gt;  [1] 1 3 2 1 1 1 4 4 2 2 4 4 4 1 3 4 2 1 1 1</span>
 <span class="co">#&gt; attr(,&quot;labels&quot;)</span>
 <span class="co">#&gt; very low      low      mid       hi </span>
 <span class="co">#&gt;        1        2        3        4</span></code></pre></div>
@@ -316,7 +316,7 @@ efc <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">set_labels</span>(<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;not often&quot;</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;very often&quot;</span> =<span class="st"> </span><span class="dv">4</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">frq</span>()
 <span class="co">#&gt; </span>
-<span class="co">#&gt; # do you feel you cope well as caregiver? &lt;numeric&gt;</span>
+<span class="co">#&gt; # do you feel you cope well as caregiver? (c82cop1) &lt;numeric&gt;</span>
 <span class="co">#&gt; # Total N = 908 (valid N = 901)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val      label frq raw.prc valid.prc cum.prc</span>
@@ -327,7 +327,7 @@ efc <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="co">#&gt;   NA         NA   7    0.77        NA      NA</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; # do you find caregiving too demanding? &lt;numeric&gt;</span>
+<span class="co">#&gt; # do you find caregiving too demanding? (c83cop2) &lt;numeric&gt;</span>
 <span class="co">#&gt; # Total N = 908 (valid N = 902)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val      label frq raw.prc valid.prc cum.prc</span>
@@ -338,7 +338,7 @@ efc <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="co">#&gt;   NA         NA   6    0.66        NA      NA</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? &lt;numeric&gt;</span>
+<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? (c84cop3) &lt;numeric&gt;</span>
 <span class="co">#&gt; # Total N = 908 (valid N = 902)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val      label frq raw.prc valid.prc cum.prc</span>
@@ -391,13 +391,13 @@ testit &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span c
 <span class="co"># return new vector</span>
 x &lt;-<span class="st"> </span><span class="kw">set_label</span>(x, <span class="dt">label =</span> <span class="st">&quot;Dummy-variable&quot;</span>)
 <span class="kw">str</span>(x)
-<span class="co">#&gt;  atomic [1:10] 2 1 3 3 3 1 4 4 4 1</span>
+<span class="co">#&gt;  atomic [1:10] 4 1 2 1 1 2 3 2 3 4</span>
 <span class="co">#&gt;  - attr(*, &quot;label&quot;)= chr &quot;Dummy-variable&quot;</span>
 
 <span class="co"># label existing vector</span>
 <span class="kw">set_label</span>(x) &lt;-<span class="st"> &quot;Another Dummy-variable&quot;</span>
 <span class="kw">str</span>(x)
-<span class="co">#&gt;  atomic [1:10] 2 1 3 3 3 1 4 4 4 1</span>
+<span class="co">#&gt;  atomic [1:10] 4 1 2 1 1 2 3 2 3 4</span>
 <span class="co">#&gt;  - attr(*, &quot;label&quot;)= chr &quot;Another Dummy-variable&quot;</span></code></pre></div>
 <p><code>set_label()</code> can also set variable labels for a data frame. In this case, the variable attributes get an additional <code>name</code> attribute with the vector’s name. This makes it easier to see which label belongs to which vector.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
@@ -411,13 +411,13 @@ x &lt;-<span class="st"> </span><span class="kw">set_label</span>(x, <span class
 
 <span class="kw">str</span>(x)
 <span class="co">#&gt; 'data.frame':    10 obs. of  3 variables:</span>
-<span class="co">#&gt;  $ a: atomic  1 1 2 1 3 4 3 4 3 2</span>
+<span class="co">#&gt;  $ a: atomic  1 3 3 2 4 1 2 1 4 1</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;Variable A&quot;</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;a&quot;</span>
-<span class="co">#&gt;  $ b: atomic  1 4 2 2 3 4 1 3 3 2</span>
+<span class="co">#&gt;  $ b: atomic  1 1 2 3 2 2 4 3 2 1</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;Variable B&quot;</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;b&quot;</span>
-<span class="co">#&gt;  $ c: atomic  1 2 1 1 4 4 2 2 1 3</span>
+<span class="co">#&gt;  $ c: atomic  2 1 3 3 3 1 1 1 1 2</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;Variable C&quot;</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;c&quot;</span>
 
@@ -439,11 +439,11 @@ x <span class="op">%&gt;%</span><span class="st"> </span>
   ) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">str</span>()
 <span class="co">#&gt; 'data.frame':    10 obs. of  3 variables:</span>
-<span class="co">#&gt;  $ a: atomic  4 3 2 1 1 1 4 4 1 4</span>
+<span class="co">#&gt;  $ a: atomic  3 1 4 4 1 1 2 2 4 2</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;Variable A&quot;</span>
-<span class="co">#&gt;  $ b: atomic  2 3 3 4 2 4 2 3 2 1</span>
+<span class="co">#&gt;  $ b: atomic  2 1 2 1 3 1 2 3 2 1</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;Variable B&quot;</span>
-<span class="co">#&gt;  $ c: atomic  2 3 1 1 3 4 1 3 2 2</span>
+<span class="co">#&gt;  $ c: atomic  1 4 1 2 2 1 4 1 4 2</span>
 <span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;Variable C&quot;</span></code></pre></div>
 </div>
 </div>
@@ -457,16 +457,16 @@ x <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="kw">table</span>(x)
 <span class="co">#&gt; x</span>
 <span class="co">#&gt;  1  2  3  4  5  6  7  8 </span>
-<span class="co">#&gt; 16 10  8 18 14 11 12 11</span>
+<span class="co">#&gt; 10 12 14 15 14 14 12  9</span>
 
 <span class="co"># set value 1 and 8 as tagged missings</span>
 x &lt;-<span class="st"> </span><span class="kw">set_na</span>(x, <span class="dt">na =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">8</span>), <span class="dt">as.tag =</span> <span class="ot">TRUE</span>)
 x
-<span class="co">#&gt;   [1] NA NA NA  6 NA  4  2  3  4  5 NA NA  3 NA NA NA  2  5 NA  7  6  5 NA</span>
-<span class="co">#&gt;  [24]  5  4  4 NA  4  7  3  5 NA  3 NA  7  2 NA  7 NA  7  6 NA  5  4  3  5</span>
-<span class="co">#&gt;  [47] NA  6  5  6  2  2  4  7  2 NA  3  4 NA NA  6  4  4  5  5  2  3  7  3</span>
-<span class="co">#&gt;  [70]  7  2  4  7  6  6  4  5 NA NA  6  4  4 NA  7  6  4  4 NA  2  4  7  5</span>
-<span class="co">#&gt;  [93]  6 NA  4 NA  7  5  5  2</span>
+<span class="co">#&gt;   [1]  4  5  5  5 NA  3  3  3  2  7  6 NA  2  2  7  6  5  4 NA  6  5  4  6</span>
+<span class="co">#&gt;  [24]  7 NA  2 NA  5  4  3  7  5  2  5  3  7  4  2 NA  4 NA NA NA NA  5 NA</span>
+<span class="co">#&gt;  [47]  3 NA  3  2  7  3  4 NA  6  4  2  6  7  6  4  7  5 NA  7 NA  7  6  5</span>
+<span class="co">#&gt;  [70]  2  7  4 NA  3  2  6  4  5  5  3  6  6  4  3 NA NA  6  3  4  3  2 NA</span>
+<span class="co">#&gt;  [93]  4  6  4  2  7  5  6  3</span>
 <span class="co">#&gt; attr(,&quot;labels&quot;)</span>
 <span class="co">#&gt;  1  8 </span>
 <span class="co">#&gt; NA NA</span>
@@ -475,20 +475,20 @@ x
 <span class="kw">table</span>(x, <span class="dt">useNA =</span> <span class="st">&quot;always&quot;</span>)
 <span class="co">#&gt; x</span>
 <span class="co">#&gt;    2    3    4    5    6    7 &lt;NA&gt; </span>
-<span class="co">#&gt;   10    8   18   14   11   12   27</span>
+<span class="co">#&gt;   12   14   15   14   14   12   19</span>
 
 <span class="co"># now let's see, which NA's were &quot;1&quot; and which were &quot;8&quot;</span>
 <span class="kw">print_tagged_na</span>(x)
-<span class="co">#&gt;   [1] NA(1) NA(8) NA(8)     6 NA(8)     4     2     3     4     5 NA(1)</span>
-<span class="co">#&gt;  [12] NA(1)     3 NA(8) NA(1) NA(8)     2     5 NA(8)     7     6     5</span>
-<span class="co">#&gt;  [23] NA(1)     5     4     4 NA(8)     4     7     3     5 NA(1)     3</span>
-<span class="co">#&gt;  [34] NA(1)     7     2 NA(1)     7 NA(1)     7     6 NA(8)     5     4</span>
-<span class="co">#&gt;  [45]     3     5 NA(8)     6     5     6     2     2     4     7     2</span>
-<span class="co">#&gt;  [56] NA(1)     3     4 NA(8) NA(1)     6     4     4     5     5     2</span>
-<span class="co">#&gt;  [67]     3     7     3     7     2     4     7     6     6     4     5</span>
-<span class="co">#&gt;  [78] NA(1) NA(1)     6     4     4 NA(8)     7     6     4     4 NA(1)</span>
-<span class="co">#&gt;  [89]     2     4     7     5     6 NA(1)     4 NA(1)     7     5     5</span>
-<span class="co">#&gt; [100]     2</span>
+<span class="co">#&gt;   [1]     4     5     5     5 NA(1)     3     3     3     2     7     6</span>
+<span class="co">#&gt;  [12] NA(8)     2     2     7     6     5     4 NA(1)     6     5     4</span>
+<span class="co">#&gt;  [23]     6     7 NA(1)     2 NA(1)     5     4     3     7     5     2</span>
+<span class="co">#&gt;  [34]     5     3     7     4     2 NA(8)     4 NA(8) NA(8) NA(8) NA(1)</span>
+<span class="co">#&gt;  [45]     5 NA(1)     3 NA(1)     3     2     7     3     4 NA(8)     6</span>
+<span class="co">#&gt;  [56]     4     2     6     7     6     4     7     5 NA(1)     7 NA(8)</span>
+<span class="co">#&gt;  [67]     7     6     5     2     7     4 NA(1)     3     2     6     4</span>
+<span class="co">#&gt;  [78]     5     5     3     6     6     4     3 NA(1) NA(8)     6     3</span>
+<span class="co">#&gt;  [89]     4     3     2 NA(8)     4     6     4     2     7     5     6</span>
+<span class="co">#&gt; [100]     3</span>
 
 x &lt;-<span class="st"> </span><span class="kw">factor</span>(<span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>))
 x
@@ -544,7 +544,7 @@ dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc<span 
 <span class="co"># No more NA values</span>
 <span class="kw">frq</span>(dummy)
 <span class="co">#&gt; </span>
-<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? &lt;numeric&gt;</span>
+<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? (x) &lt;numeric&gt;</span>
 <span class="co">#&gt; # Total N = 908 (valid N = 908)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val  label frq raw.prc valid.prc cum.prc</span>
@@ -568,7 +568,7 @@ dummy &lt;-<span class="st"> </span><span class="kw">replace_na</span>(efc<span 
 <span class="co"># Some NA values remain</span>
 <span class="kw">frq</span>(dummy)
 <span class="co">#&gt; </span>
-<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? &lt;numeric&gt;</span>
+<span class="co">#&gt; # does caregiving cause difficulties in your relationship with your friends? (x) &lt;numeric&gt;</span>
 <span class="co">#&gt; # Total N = 908 (valid N = 820)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  val       label frq raw.prc valid.prc cum.prc</span>
