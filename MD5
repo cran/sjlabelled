@@ -1,6 +1,6 @@
-f93456ee01e8ebea2b55b238efb79aca *DESCRIPTION
-f7e1de5d2111867f6a9026dbeb224a0c *NAMESPACE
-c4d178dda977dab8a7152550657149a9 *NEWS.md
+db7ae7e583b434ea4fcbdc646bd71c7f *DESCRIPTION
+3922f0d8386deca8a73012acef22473d *NAMESPACE
+c9712dd99c1ceb411ddf8d0f98fda454 *NEWS.md
 684e158e5b7e9bd0f63dbd59c656e850 *R/add_labels.R
 c5c9d9ec80daffb8584b2b839d474a48 *R/as_factor.R
 7e200d6eb2ac2a70a0198b6cc7fa7703 *R/as_labelled.R
@@ -17,7 +17,6 @@ f3bd2071504d7b5f17256b5d5e35dab5 *R/get_model_labels.R
 24127b67b9b50f1b4496fed01b40c3fe *R/get_values.R
 9b380125e9b88ee3e2cf35ef8f751e0e *R/helpfunctions.R
 7ddb1094a43d0eb05099cc6af6aad779 *R/is_labelled.R
-50830819ed2108fb2f67b8e8d81567b5 *R/lbl_df.R
 2f37055958859528f8f42ab96cff6398 *R/read_write.R
 e378688fe09332e5640308e96fc1df2e *R/remove_all_labels.R
 33cb27eb0841689c7481ecd6936f8812 *R/remove_labels.R
@@ -37,10 +36,10 @@ a846ca5d80259595cc8db389b98a392a *build/vignette.rds
 a1bb2bd1dbfc4966539176006620342c *inst/CITATION
 6974180d119ed98ff2d7c100f2ef40ac *inst/doc/intro_sjlabelled.R
 61b10ffeb720ab3debbd87517d08f8ab *inst/doc/intro_sjlabelled.Rmd
-640198ffb64240d39b424989d25147bd *inst/doc/intro_sjlabelled.html
+6761f567ae1c8fb5de7b6df1d8720a52 *inst/doc/intro_sjlabelled.html
 b9302087e37796d361f8af01ddbdb96d *inst/doc/labelleddata.R
 00bcfdfe4c12e6f52a19c78f6f7446e9 *inst/doc/labelleddata.Rmd
-78713732c85d47ce27ac599ff67316c8 *inst/doc/labelleddata.html
+0e9e47d93cbbf1800b0e4e90c893f91f *inst/doc/labelleddata.html
 c0759f7b7d7a9a9b85c8ef9dcbf1802f *man/add_labels.Rd
 cae95b29f8833255ceae1b27bac8208a *man/as_factor.Rd
 9c0fc887a8ee403017d3981925776007 *man/as_label.Rd
@@ -57,7 +56,6 @@ e15d1803e15daac84295eeb1b0eafba7 *man/get_note.Rd
 8a43ccbb6190b5e36a6430f7156ce359 *man/get_term_labels.Rd
 5d18136f6a1d3027ffa971bf6e354782 *man/get_values.Rd
 391621318f61d3e2859e09cf18d140bc *man/is_labelled.Rd
-61344e6580b2a722d9b484107f74cf86 *man/lbl_df.Rd
 87da4a5f668922640c9f956dc23da99a *man/read_spss.Rd
 4e3e2e678d0a506d5b0bb00dd85b9bda *man/reexports.Rd
 f99ed77deffd022eb7a2d1086f6838dd *man/remove_all_labels.Rd
@@ -66,7 +64,6 @@ dd6e7be86f1bbb75264ee45e645f182f *man/set_labels.Rd
 4ba4da2c00176ea640aeaceb4a64e90a *man/set_note.Rd
 798a93671e200b674935a501635b46c9 *man/sjlabelled-package.Rd
 a8be3d408580a1492da1686fb1a6bf55 *man/tidy_labels.Rd
-be0c662a2c0b83635daf7e1b303273ac *man/type_sum.Rd
 bbf8439eae7975b7d7ddb8af57b7a4da *man/unlabel.Rd
 58ed29a9538523b7db013724ccc704db *man/write_spss.Rd
 8daf263c6269c0a52503db8bd2e6e717 *man/zap_labels.Rd
