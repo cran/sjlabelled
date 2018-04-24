@@ -35,9 +35,6 @@ set_na_helper <- function(x, value, drop.levels, as.tag) {
   # check if values has only NA's
   if (sum(is.na(x)) == length(x)) return(x)
 
-  # get label attribute
-  attr.string <- getValLabelAttribute(x, def.value = "labels")
-
   # check if value is a named vector
   na.names <- names(value)
   # get values for value labels
@@ -47,24 +44,18 @@ set_na_helper <- function(x, value, drop.levels, as.tag) {
   if (inherits(x, "Date")) as.tag <- F
 
   # get value labels
-  val.lab <-
-    get_labels(
-      x,
-      attr.only = TRUE,
-      include.values = "n",
-      include.non.labelled = FALSE,
-      drop.na = TRUE
-    )
+  val.lab <- attr(x, "labels", exact = T)
+  val.lab <- val.lab[!haven::is_tagged_na(val.lab)]
 
   # if value is a character vector, user may have defined a value label.
   # find value of associated label then
   if (is.character(value)) {
     # get value labels that match the values which should be set to NA
-    val.match <- val.lab[val.lab %in% value]
+    val.match <- val.lab[names(val.lab) %in% value]
     # now get values for this vector
     if (!isempty(val.match) && !isempty(names(val.match))) {
       # should be numeric, else we might have a factor
-      na.values <- suppressWarnings(as.numeric(names(val.match)))
+      na.values <- suppressWarnings(as.numeric(val.match))
       # if we have no NA, coercing to numeric worked. Now get these
       # NA values and remove value labels from vector
       if (!anyNA(na.values)) {
@@ -95,21 +86,19 @@ set_na_helper <- function(x, value, drop.levels, as.tag) {
       if (!isempty(lv)) {
         # for tagged NA, use tag as new attribute
         # change value
-        attr(x, attr.string)[lv] <- haven::tagged_na(as.character(value[i]))
+        attr(x, "labels")[lv] <- haven::tagged_na(as.character(value[i]))
         # change label as well?
-        if (!is.null(na.names)) names(attr(x, attr.string))[lv] <- na.names[i]
+        if (!is.null(na.names)) names(attr(x, "labels"))[lv] <- na.names[i]
       } else {
-        # no attribute string yet?
-        if (is.null(attr.string)) attr.string <- "labels"
         # get labels and label values
-        lv <- attr(x, attr.string, exact = T)
-        ln <- names(attr(x, attr.string, exact = T))
+        lv <- attr(x, "labels", exact = T)
+        ln <- names(attr(x, "labels", exact = T))
         # add NA
-        attr(x, attr.string) <- c(lv, haven::tagged_na(as.character(value[i])))
+        attr(x, "labels") <- c(lv, haven::tagged_na(as.character(value[i])))
         if (!is.null(na.names))
-          names(attr(x, attr.string)) <- c(ln, na.names[i])
+          names(attr(x, "labels")) <- c(ln, na.names[i])
         else
-          names(attr(x, attr.string)) <- c(ln, as.character(value[i]))
+          names(attr(x, "labels")) <- c(ln, as.character(value[i]))
       }
     } else {
       # find associated values in x and set them as tagged NA
@@ -121,9 +110,7 @@ set_na_helper <- function(x, value, drop.levels, as.tag) {
   removers <- which(get_values(x) %in% value)
 
   if (!is.null(removers) && !isempty(removers, first.only = T)) {
-    vl <- as.numeric(names(val.lab))
-    names(vl) <- unname(val.lab)
-    attr(x, attr.string) <- vl[-removers]
+    attr(x, "labels") <- val.lab[-removers]
   }
 
   # if we have a factor, check if we have unused levels now due to NA

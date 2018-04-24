@@ -19,8 +19,9 @@ drop_labels <- function(x, ..., drop.na = TRUE) {
 }
 
 drop_labels_helper <- function(x, drop.na) {
-  # get labels
-  tidy.labels <- get_labels(x, attr.only = T, include.values = "n", include.non.labelled = F, drop.na = T)
+  # retrieve named labels
+  tidy.labels <- attr(x, "labels", exact = T)
+  tidy.labels <- tidy.labels[!haven::is_tagged_na(tidy.labels)]
 
   # return x, if no attribute
   if (is.null(tidy.labels)) return(x)
@@ -45,19 +46,12 @@ drop_labels_helper <- function(x, drop.na) {
   if (isempty(tidy.labels)) {
     attr(x, "labels") <- NULL
   } else {
-    labs <- names(tidy.labels)
-
-    # check if all label-values are numeric, and if so, convert to numeric
-    if (is.num.chr(labs)) labs <- as.numeric(labs)
-
-    # set back labels attribute
-    names(labs) <- tidy.labels
-    attr(x, "labels") <- labs
+    attr(x, "labels") <- tidy.labels
 
     # if labels, e.g. due to taggend NA, are no longer of same
     # type as labelled vector, remove labelled class attribute -
     # else, haven will throw errors
-    if (inherits(x, "labelled") && typeof(x) != typeof(labs))
+    if (inherits(x, "labelled") && typeof(x) != typeof(tidy.labels))
       x <- unclass(x)
   }
 

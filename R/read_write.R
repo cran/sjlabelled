@@ -149,7 +149,7 @@ read_spss <- function(path, atomic.to.fac = FALSE, tag.na = FALSE) {
   data.spss <- unlabel(data.spss)
 
   # convert atomic values to factors
-  if (atomic.to.fac) data.spss <- atomic_to_fac(data.spss, getValLabelAttribute(data.spss))
+  if (atomic.to.fac) data.spss <- atomic_to_fac(data.spss)
 
   # return data frame
   data.spss
@@ -158,24 +158,22 @@ read_spss <- function(path, atomic.to.fac = FALSE, tag.na = FALSE) {
 
 # converts atomic numeric vectors into factors with
 # numerical factor levels
-#' @importFrom utils txtProgressBar setTxtProgressBar
-atomic_to_fac <- function(data.spss, attr.string) {
-  # check for valid attr.string
-  if (!is.null(attr.string)) {
-    # create progress bar
-    pb <- utils::txtProgressBar(min = 0, max = ncol(data.spss), style = 3)
-    # tell user...
-    message("Converting atomic to factors. Please wait...\n")
-    # iterate all columns
-    for (i in seq_len(ncol(data.spss))) {
-      # copy column to vector
-      x <- data.spss[[i]]
+#' @importFrom purrr map_df
+#' @importFrom dplyr n_distinct
+atomic_to_fac <- function(data.spss) {
+  # tell user...
+  message("Converting atomic to factors. Please wait...\n")
+  # iterate all columns
+
+  purrr::map(
+    data.spss,
+    function(x) {
       # capture value labels attribute first
-      labs <- attr(x, attr.string, exact = T)
+      labs <- attr(x, "labels", exact = T)
       # and save variable label, if any
       lab <- attr(x, "label", exact = T)
       # is atomic, which was factor in SPSS?
-      if (is.atomic(x) && !is.null(labs)) {
+      if (is.atomic(x) && !is.null(labs) && length(labs) >= dplyr::n_distinct(x, na.rm = TRUE)) {
         # so we have value labels (only typical for factors, not
         # continuous variables) and a variable of type "atomic" (SPSS
         # continuous variables would be imported as numeric) - this
@@ -183,19 +181,13 @@ atomic_to_fac <- function(data.spss, attr.string) {
         # factor
         x <- as.factor(x)
         # set back labels attribute
-        attr(x, attr.string) <- labs
+        attr(x, "labels") <- labs
         # any variable label?
         if (!is.null(lab)) attr(x, "label") <- lab
-        # copy vector back to data frame
-        data.spss[[i]] <- x
       }
-      # update progress bar
-      utils::setTxtProgressBar(pb, i)
-    }
-    close(pb)
-  }
-
-  data.spss
+      x
+  }) %>%
+    as.data.frame()
 }
 
 
@@ -220,7 +212,7 @@ read_sas <- function(path, path.cat = NULL, atomic.to.fac = FALSE, enc = NULL) {
   data <- unlabel(data)
 
   # convert atomic values to factors
-  if (atomic.to.fac) data <- atomic_to_fac(data, getValLabelAttribute(data))
+  if (atomic.to.fac) data <- atomic_to_fac(data)
 
   # return data frame
   data
@@ -248,7 +240,7 @@ read_stata <- function(path, atomic.to.fac = FALSE, enc = NULL) {
   data <- unlabel(data)
 
   # convert atomic values to factors
-  if (atomic.to.fac) data <- atomic_to_fac(data, getValLabelAttribute(data))
+  if (atomic.to.fac) data <- atomic_to_fac(data)
 
   # return data frame
   data

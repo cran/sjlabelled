@@ -31,9 +31,8 @@
 #'
 #'
 #' @examples
-#' # ------------------------
-#' # zap_labels()
-#' # ------------------------
+#' # zap_labels() ----
+#'
 #' data(efc)
 #' str(efc$e42dep)
 #'
@@ -65,9 +64,9 @@
 #'   ) %>%
 #'   zap_labels()
 #'
-#' # ------------------------
-#' # drop_labels()
-#' # ------------------------
+#'
+#' # drop_labels() ----
+#'
 #' library(sjmisc)
 #' rp <- rec_pattern(1, 100)
 #' rp
@@ -95,14 +94,16 @@
 #' drop_labels(x)
 #' zap_na_tags(drop_labels(x))
 #'
-#' # ------------------------
-#' # fill_labels()
-#' # ------------------------
+#'
+#' # fill_labels() ----
+#'
 #' # create labelled integer, with tagged missings
 #' library(haven)
-#' x <- labelled(c(1:3, tagged_na("a", "c", "z"), 4:1),
-#'               c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
-#'                 "Refused" = tagged_na("a"), "Not home" = tagged_na("z")))
+#' x <- labelled(
+#'   c(1:3, tagged_na("a", "c", "z"), 4:1),
+#'   c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
+#'     "Refused" = tagged_na("a"), "Not home" = tagged_na("z"))
+#'   )
 #' # get current values and labels
 #' x
 #' get_labels(x)
@@ -170,9 +171,11 @@ zap_unlabelled <- function(x, ...) {
 #'
 #' @examples
 #' library(haven)
-#' x <- labelled(c(1:3, tagged_na("a", "c", "z"), 4:1),
-#'               c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
-#'                 "Refused" = tagged_na("a"), "Not home" = tagged_na("z")))
+#' x <- labelled(
+#'   c(1:3, tagged_na("a", "c", "z"), 4:1),
+#'   c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
+#'     "Refused" = tagged_na("a"), "Not home" = tagged_na("z"))
+#' )
 #' # get current NA values
 #' x
 #' get_na(x)
@@ -210,11 +213,8 @@ zap_na_tags <- function(x, ...) {
 zap_labels_helper <- function(x) {
   x <- set.na(x, na = get_values(x, drop.na = T))
 
-  # auto-detect variable label attribute
-  attr.string <- getVarLabelAttribute(x)
-
   # remove label attributes
-  if (!is.null(attr.string)) attr(x, attr.string) <- NULL
+  attr(x, "label") <- NULL
   if (is_labelled(x)) class(x) <- NULL
 
   x
@@ -232,6 +232,17 @@ zap_na_tags_helper <- function(x) {
   if (sum(is.na(x)) == length(x)) return(x)
   # convert all NA, including tagged NA, into regular NA
   x[is.na(x)] <- NA
-  # "remove" labels from tagged NA values
-  set_labels(x, labels = get_labels(x, attr.only = T, include.values = "n", drop.na = T))
+
+  # get labels, w/o labelled NA
+  # retrieve named labels
+  labs <- attr(x, "labels", exact = T)
+  labs <- labs[!haven::is_tagged_na(labs)]
+
+  # if no labels left, clear attribute
+  if (is.null(labs)) {
+    attr(x, "labels") <- NULL
+    return(x)
+  } else {
+    set_labels(x, labels = labs)
+  }
 }
