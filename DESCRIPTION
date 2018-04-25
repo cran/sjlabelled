@@ -2,8 +2,8 @@ Package: sjlabelled
 Type: Package
 Encoding: UTF-8
 Title: Labelled Data Utility Functions
-Version: 1.0.9
-Date: 2018-04-24
+Version: 1.0.10
+Date: 2018-04-25
 Author: Daniel Lüdecke <d.luedecke@uke.de>
 Maintainer: Daniel Lüdecke <d.luedecke@uke.de>
 Description: Collection of functions dealing with labelled data, like reading and 
@@ -24,6 +24,6 @@ BugReports: https://github.com/strengejacke/sjlabelled/issues
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2018-04-24 08:43:11 UTC; Daniel
+Packaged: 2018-04-25 07:16:03 UTC; Daniel
 Repository: CRAN
-Date/Publication: 2018-04-24 22:05:20 UTC
+Date/Publication: 2018-04-25 08:19:55 UTC
