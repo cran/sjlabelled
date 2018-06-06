@@ -8,7 +8,7 @@
 #'
 #' @param path File path to the data file.
 #' @param atomic.to.fac Logical, if \code{TRUE}, categorical variables imported
-#'   from the dataset (which are imported as \code{\link{atomic}}) will be
+#'   from the dataset (which are imported as \code{atomic}) will be
 #'   converted to factors.
 #' @param tag.na Logical, if \code{TRUE}, missing values are imported
 #'          as \code{\link[haven]{tagged_na}} values; else, missing values are
@@ -253,12 +253,6 @@ read_stata <- function(path, atomic.to.fac = FALSE, enc = NULL) {
 #' @description These functions write the content of a data frame to an SPSS, SAS or
 #'                Stata-file.
 #'
-#' @note You don't need to take care whether variables have been imported with
-#'         the \code{read_*} function from this package or from \pkg{haven}
-#'         or even the \pkg{foreign} package, or if you have imported data and
-#'         created new variables. These functions do all necessary data preparation
-#'         to write a properly labelled data file.
-#'
 #' @param x A data frame that should be saved as file.
 #' @param path File path of the output file.
 #' @param version File version to use. Supports versions 8-14.
@@ -286,6 +280,8 @@ write_sas <- function(x, path, drop.na = FALSE) {
 }
 
 
+#' @importFrom purrr map
+#' @importFrom tibble as_tibble
 #' @importFrom haven write_sav write_dta write_sas
 write_data <- function(x, path, type, version, drop.na) {
   # make sure to have tidy labels
@@ -293,7 +289,8 @@ write_data <- function(x, path, type, version, drop.na) {
   x <- tidy_labels(x)
 
   # convert data to labelled
-  x <- as_label(x, add.non.labelled = T, drop.na = drop.na)
+  # x <- as_label(x, add.non.labelled = T, drop.na = drop.na)
+  x <- as_labelled(x, add.labels = TRUE)
 
   # check for correct column names
   for (i in seq_len(ncol(x))) {
