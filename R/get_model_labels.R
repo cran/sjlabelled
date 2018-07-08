@@ -69,12 +69,22 @@
 #'
 #' @importFrom purrr map flatten_chr
 #' @importFrom broom tidy
-#' @importFrom stats model.frame coef
+#' @importFrom stats model.frame coef terms
 #' @importFrom dplyr select slice
 #' @export
 get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("none", "varname", "label"), ...) {
 
   prefix <- match.arg(prefix)
+
+  ## TODO better handling for stanmvreg
+
+  if (inherits(models, "stanmvreg")) {
+    return(
+      stats::terms(models) %>%
+        purrr::map(~ attr(.x, "term.labels")) %>%
+        purrr::flatten_chr()
+    )
+  }
 
   # to be generic, make sure argument is a list
   if (!inherits(models, "list")) models <- list(models)
@@ -84,8 +94,24 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
 
   # get model terms and model frame
 
-  m <- purrr::map(models, ~ dplyr::slice(tidy_models(.x), -1))
-  mf <- purrr::map(models, ~ dplyr::select(get_model_frame(.x), -1))
+  m <- tryCatch(
+    {purrr::map(models, ~ dplyr::slice(tidy_models(.x), -1))},
+    error = function(x) { NULL },
+    warning = function(x) { NULL },
+    finally = function(x) { NULL }
+  )
+
+  mf <- tryCatch(
+    {purrr::map(models, ~ dplyr::select(get_model_frame(.x), -1))},
+    error = function(x) { NULL },
+    warning = function(x) { NULL },
+    finally = function(x) { NULL }
+  )
+
+
+  # return NULL on error
+
+  if (is.null(m) || is.null(mf)) return(NULL)
 
 
   # get all variable labels for predictors
@@ -209,9 +235,7 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, ...) {
   if (!inherits(models, "list")) models <- list(models)
 
 
-  # get intercept vectors
-
-  intercepts.names <-
+  intercepts.names <- tryCatch({
     purrr::map(models, function(x) {
       if (inherits(x, "brmsfit")) {
         if (is.null(stats::formula(x)$formula) && !is.null(stats::formula(x)$responses))
@@ -221,24 +245,44 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, ...) {
             paste(stats::formula(x)$responses, collapse = ", ")
         else
           deparse(stats::formula(x)$formula[[2L]])
+      } else if (inherits(x, "stanmvreg")) {
+        if (multi.resp)
+          purrr::map_chr(stats::formula(x), ~ deparse(.x[[2L]]))
+        else
+          paste(purrr::map_chr(stats::formula(x), ~ deparse(.x[[2L]])), collapse = ", ")
       } else {
         deparse(stats::formula(x)[[2L]])
       }
-    })
-
-
-  mf <- purrr::map2(
-    models,
-    intercepts.names,
-    function(x, y) {
-      m <- get_model_frame(x)
-      y <- y[tibble::has_name(m, y)]
-      if (length(y) > 0)
-        dplyr::select(m, !! y)
-      else
-        m[[1]]
-    }
+    })},
+    error = function(x) { NULL },
+    warning = function(x) { NULL }
   )
+
+
+  mf <- tryCatch({
+    purrr::map2(
+      models,
+      intercepts.names,
+      function(x, y) {
+        m <- get_model_frame(x)
+        if (multi.resp && inherits(x, "brmsfit"))
+          colnames(m) <- gsub(pattern = "_", replacement = "", x = colnames(m), fixed = TRUE)
+        y <- y[tibble::has_name(m, y)]
+        if (length(y) > 0)
+          dplyr::select(m, !! y)
+        else
+          m[[1]]
+      }
+    )},
+    error = function(x) { NULL },
+    warning = function(x) { NULL }
+  )
+
+
+  if (is.null(intercepts.names) || is.null(mf)) {
+    return(rep_len("Dependent variable", length.out = length(models)))
+  }
+
 
   # get all labels
 
@@ -264,14 +308,23 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, ...) {
 }
 
 
-
+#' @importFrom purrr reduce
+#' @importFrom dplyr full_join
 #' @importFrom prediction find_data
 #' @importFrom stats model.frame
 get_model_frame <- function(x) {
-  if (inherits(x, c("lme", "vgam", "gee", "gls")))
+  if (inherits(x, c("vgam", "gee", "gls")))
     fitfram <- prediction::find_data(x)
+  else if (inherits(x, "lme"))
+    fitfram <- x$data
   else if (inherits(x, "Zelig-relogit"))
     fitfram <- x$zelig.out$z.out[[1]]$data
+  else if (inherits(x, "stanmvreg"))
+    fitfram <- suppressMessages(
+      purrr::reduce(stats::model.frame(x), ~ dplyr::full_join(.x, .y))
+    )
   else
     fitfram <- stats::model.frame(x)
+
+  fitfram
 }
