@@ -18,15 +18,28 @@
 #'         from \code{df_new} are removed.
 #'
 #' @examples
+#' library(dplyr)
 #' data(efc)
+#'
+#' # create subset - drops label attributes
 #' efc.sub <- subset(efc, subset = e16sex == 1, select = c(4:8))
 #' str(efc.sub)
 #'
+#' # copy back attributes from original dataframe
 #' efc.sub <- copy_labels(efc.sub, efc)
 #' str(efc.sub)
 #'
+#' # remove all labels
 #' efc.sub <- copy_labels(efc.sub)
 #' str(efc.sub)
+#'
+#' # create subset - drops label attributes
+#' efc.sub <- subset(efc, subset = e16sex == 1, select = c(4:8))
+#' # create subset with dplyr's select - attributes are preserved
+#' efc.sub2 <- select(efc, c160age, e42dep, neg_c_7, c82cop1, c84cop3)
+#'
+#' # copy labels from those columns that are available
+#' copy_labels(efc.sub, efc.sub2) %>% str()
 #'
 #' @export
 copy_labels <- function(df_new, df_origin = NULL) {
@@ -40,34 +53,17 @@ copy_labels <- function(df_new, df_origin = NULL) {
   } else {
     # check params
     if (is.data.frame(df_new) && is.data.frame(df_origin)) {
-      # retrieve variables of subsetted data frame
-      cn <- colnames(df_new)
+      # get matching colnames, because we only copy attributes from variables
+      # that also exist in the new data frame (of course)
+      cn <- intersect(colnames(df_new), colnames(df_origin))
 
-      # check for valid colnames, i.e. if all column
-      # names really match the original column names.
-      if (sum(cn %in% colnames(df_origin) == F) > 0) {
-        # if not, return only matching colnames, because
-        # we only copy attributes from variables that also
-        # exist in the new data frame (of course)
-        cn <- cn[cn %in% colnames(df_origin)]
+      for (i in cn) {
+        # copy variable and value labels
+        attr(df_new[[i]], "label") <- attr(df_origin[[i]], "label", exact = TRUE)
+        attr(df_new[[i]], "labels") <- attr(df_origin[[i]], "labels", exact = TRUE)
       }
-
-      # get var-labels of original data frame, and select only those
-      # labels from variables that appear in the new (subsetted) data frame
-      df_new <- set_label(df_new, label = get_label(df_origin[, cn]))
-
-      # same for value labels
-      df_new <- suppressMessages(set_labels(
-        df_new,
-        labels = get_labels(
-          df_origin[, cn],
-          attr.only = TRUE,
-          include.values = "n",
-          include.non.labelled = FALSE
-        )
-      ))
     } else {
-      warning("both `df_origin` and `df_new` must be of class `data.frame`.", call. = F)
+      warning("Both `df_origin` and `df_new` must be of class `data.frame`.", call. = F)
     }
   }
 

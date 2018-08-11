@@ -26,7 +26,7 @@ str(efc$e16sex)
 get_labels(efc$e42dep)
 
 ## ------------------------------------------------------------------------
-get_labels(efc$e42dep, include.values = "p")
+get_labels(efc$e42dep, values = "p")
 
 ## ------------------------------------------------------------------------
 x <- factor(c("low", "mid", "low", "hi", "mid", "low"))
@@ -46,10 +46,10 @@ x <- labelled(
 get_labels(x)
 
 ## ------------------------------------------------------------------------
-get_labels(x, include.non.labelled = TRUE)
+get_labels(x, non.labelled = TRUE)
 
 ## ------------------------------------------------------------------------
-get_labels(x, include.values = "n", drop.na = FALSE)
+get_labels(x, values = "n", drop.na = FALSE)
 
 ## ------------------------------------------------------------------------
 print(x)
@@ -235,7 +235,7 @@ get_na(efc$c84cop3, as.tag = TRUE)
 dummy <- replace_na(efc$c84cop3, value = 2)
 
 # labels of former tagged NA's are preserved
-get_labels(dummy, drop.na = FALSE, include.values = "p")
+get_labels(dummy, drop.na = FALSE, values = "p")
 get_na(dummy, as.tag = TRUE)
 
 # No more NA values
@@ -247,7 +247,7 @@ frq(dummy)
 dummy <- replace_na(efc$c84cop3, value = 2, na.label = "restored NA", tagged.na = "2")
 
 # Only one tagged NA remains
-get_labels(dummy, drop.na = FALSE, include.values = "p")
+get_labels(dummy, drop.na = FALSE, values = "p")
 get_na(dummy, as.tag = TRUE)
 
 # Some NA values remain

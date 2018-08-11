@@ -12,7 +12,7 @@
 
 <meta name="author" content="Daniel Lüdecke" />
 
-<meta name="date" content="2018-07-08" />
+<meta name="date" content="2018-08-11" />
 
 <title>Working with Labelled Data</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Working with Labelled Data</h1>
 <h4 class="author"><em>Daniel Lüdecke</em></h4>
-<h4 class="date"><em>2018-07-08</em></h4>
+<h4 class="date"><em>2018-08-11</em></h4>
 
 
 
@@ -149,28 +149,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2>Add back labels</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">efc.sub &lt;-<span class="st"> </span><span class="kw">copy_labels</span>(efc.sub, efc)
 <span class="kw">str</span>(efc.sub)
-<span class="co">#&gt; Classes 'tbl_df', 'tbl' and 'data.frame':    296 obs. of  5 variables:</span>
+<span class="co">#&gt; 'data.frame':    296 obs. of  5 variables:</span>
 <span class="co">#&gt;  $ e17age : num  74 68 80 72 94 79 67 80 76 88 ...</span>
-<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;elder' age&quot;</span>
-<span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;e17age&quot;</span>
+<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;elder' age&quot;</span>
 <span class="co">#&gt;  $ e42dep : num  4 4 1 3 3 4 3 4 2 4 ...</span>
-<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;elder's dependency&quot;</span>
-<span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;e42dep&quot;</span>
+<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;elder's dependency&quot;</span>
 <span class="co">#&gt;   ..- attr(*, &quot;labels&quot;)= Named num  1 2 3 4</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr  &quot;independent&quot; &quot;slightly dependent&quot; &quot;moderately dependent&quot; &quot;severely dependent&quot;</span>
 <span class="co">#&gt;  $ c82cop1: num  4 3 3 4 3 3 4 2 2 3 ...</span>
-<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;do you feel you cope well as caregiver?&quot;</span>
-<span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;c82cop1&quot;</span>
+<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;do you feel you cope well as caregiver?&quot;</span>
 <span class="co">#&gt;   ..- attr(*, &quot;labels&quot;)= Named num  1 2 3 4</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr  &quot;never&quot; &quot;sometimes&quot; &quot;often&quot; &quot;always&quot;</span>
 <span class="co">#&gt;  $ c83cop2: num  2 4 2 2 2 2 1 3 2 2 ...</span>
-<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;do you find caregiving too demanding?&quot;</span>
-<span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;c83cop2&quot;</span>
+<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;do you find caregiving too demanding?&quot;</span>
 <span class="co">#&gt;   ..- attr(*, &quot;labels&quot;)= Named num  1 2 3 4</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr  &quot;Never&quot; &quot;Sometimes&quot; &quot;Often&quot; &quot;Always&quot;</span>
 <span class="co">#&gt;  $ c84cop3: num  4 4 1 1 1 4 2 4 2 4 ...</span>
-<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= Named chr &quot;does caregiving cause difficulties in your relationship with your friends?&quot;</span>
-<span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;c84cop3&quot;</span>
+<span class="co">#&gt;   ..- attr(*, &quot;label&quot;)= chr &quot;does caregiving cause difficulties in your relationship with your friends?&quot;</span>
 <span class="co">#&gt;   ..- attr(*, &quot;labels&quot;)= Named num  1 2 3 4</span>
 <span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr  &quot;Never&quot; &quot;Sometimes&quot; &quot;Often&quot; &quot;Always&quot;</span></code></pre></div>
 </div>
