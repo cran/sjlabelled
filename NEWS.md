@@ -1,3 +1,13 @@
+# sjlabelled 1.0.14
+
+## General
+
+* Reduce package dependencies.
+
+## Bug fixes
+
+* Fix bug in `var_labels()`, where non-existing columns may lead to wrong labelling.
+
 # sjlabelled 1.0.13
 
 ## General

@@ -19,7 +19,7 @@
 #' @param prefix Indicates whether the value labels of categorical variables
 #'          should be prefixed, e.g. with the variable name or variable label.
 #'          May be abbreviated. See 'Examples',
-#' @param multi.resp Logical, if \code{TRUE} and \code{models} is a multivariate
+#' @param mv,multi.resp Logical, if \code{TRUE} and \code{models} is a multivariate
 #'          response model from a \code{brmsfit} object, then the labels for each
 #'          dependent variable (multiple responses) are returned.
 #' @param ... Further arguments passed down to \code{\link[snakecase]{to_any_case}},
@@ -93,25 +93,13 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
 
 
   # get model terms and model frame
-
-  m <- tryCatch(
-    {purrr::map(models, ~ dplyr::slice(tidy_models(.x), -1))},
-    error = function(x) { NULL },
-    warning = function(x) { NULL },
-    finally = function(x) { NULL }
-  )
-
-  mf <- tryCatch(
-    {purrr::map(models, ~ dplyr::select(get_model_frame(.x), -1))},
-    error = function(x) { NULL },
-    warning = function(x) { NULL },
-    finally = function(x) { NULL }
-  )
-
+  m <- try(purrr::map(models, ~ dplyr::slice(tidy_models(.x), -1)), silent = TRUE)
+  mf <- try(purrr::map(models, ~ dplyr::select(get_model_frame(.x), -1)), silent = TRUE)
 
   # return NULL on error
-
-  if (is.null(m) || is.null(mf)) return(NULL)
+  if (inherits(m, "try-error") || inherits(mf, "try-error")) {
+    return(NULL)
+  }
 
 
   # get all variable labels for predictors
@@ -186,9 +174,6 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
   if (!isempty(en)) names(lbs)[en] <- lbs[en]
 
 
-  # check if attribute is requested
-  if (mark.cat) attr(lbs, "category.value") <- fl
-
   # prefix labels
   if (prefix != "none")
     lbs <- prepare.labels(lbs, catval = fl, style = prefix)
@@ -197,17 +182,21 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
   # the vector now contains all possible labels, as named vector.
   # since ggplot uses named vectors as labels for axis-scales, matching
   # of labels is done automatically
-  convert_case(lbs, case, ...)
+  lbs <- convert_case(lbs, case, ...)
+
+  # check if attribute is requested
+  if (mark.cat) attr(lbs, "category.value") <- fl
+
+  lbs
 }
 
 
-#' @importFrom tidyselect starts_with
 prepare.labels <- function(x, catval, style = c("varname", "label")) {
   x_var <- names(x[!catval])
   x_val <- names(x[catval])
 
   for (i in x_var) {
-    pos <- tidyselect::starts_with(i, vars = x_val)
+    pos <- string_starts_with(pattern = i, x = x_val)
 
     if (!isempty(pos) && length(pos) > 0) {
       match.vals <- x_val[pos]
@@ -226,12 +215,12 @@ prepare.labels <- function(x, catval, style = c("varname", "label")) {
 #' @importFrom purrr map map2 flatten_chr
 #' @importFrom dplyr pull select
 #' @importFrom stats model.frame
-#' @importFrom tibble has_name
 #' @export
-get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, ...) {
+get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, ...) {
+
+  if (!missing(multi.resp)) mv <- multi.resp
 
   # to be generic, make sure argument is a list
-
   if (!inherits(models, "list")) models <- list(models)
 
 
@@ -239,14 +228,14 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, ...) {
     purrr::map(models, function(x) {
       if (inherits(x, "brmsfit")) {
         if (is.null(stats::formula(x)$formula) && !is.null(stats::formula(x)$responses))
-          if (multi.resp)
+          if (mv)
             stats::formula(x)$responses
           else
             paste(stats::formula(x)$responses, collapse = ", ")
         else
           deparse(stats::formula(x)$formula[[2L]])
       } else if (inherits(x, "stanmvreg")) {
-        if (multi.resp)
+        if (mv)
           purrr::map_chr(stats::formula(x), ~ deparse(.x[[2L]]))
         else
           paste(purrr::map_chr(stats::formula(x), ~ deparse(.x[[2L]])), collapse = ", ")
@@ -265,9 +254,9 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, ...) {
       intercepts.names,
       function(x, y) {
         m <- get_model_frame(x)
-        if (multi.resp && inherits(x, "brmsfit"))
+        if (mv && inherits(x, "brmsfit"))
           colnames(m) <- gsub(pattern = "_", replacement = "", x = colnames(m), fixed = TRUE)
-        y <- y[tibble::has_name(m, y)]
+        y <- y[obj_has_name(m, y)]
         if (length(y) > 0)
           dplyr::select(m, !! y)
         else
@@ -302,7 +291,7 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, ...) {
   # name. In such cases, the variable name might have more
   # than 1 element, and here we need to set a proper default
 
-  if (!multi.resp && length(lbs) > length(models)) lbs <- "Dependent variable"
+  if (!mv && length(lbs) > length(models)) lbs <- "Dependent variable"
 
   convert_case(lbs, case, ...)
 }
