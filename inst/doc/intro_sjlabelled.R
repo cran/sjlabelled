@@ -3,9 +3,11 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ------------------------------------------------------------------------
 library(haven)
-x <- labelled(c(1:3, tagged_na("a", "c", "z"), 4:1),
-              c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
-                "Refused" = tagged_na("a"), "Not home" = tagged_na("z")))
+x <- labelled(
+  c(1:3, tagged_na("a", "c", "z"), 4:1),
+  c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
+    "Refused" = tagged_na("a"), "Not home" = tagged_na("z"))
+  )
 
 print(x)
 
