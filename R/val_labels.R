@@ -1,19 +1,15 @@
-#' @importFrom rlang ensyms as_string
-#' @rdname set_label
+#' @importFrom rlang enexprs
+#' @importFrom purrr map_at
+#' @rdname set_labels
 #' @export
-var_labels <- function(x, ...) {
+val_labels <- function(x, ..., force.labels = FALSE, force.values = TRUE, drop.na = TRUE) {
   # get dots
-  .dots <- match.call(expand.dots = FALSE)$`...`
-
-  if (inherits(.dots, "pairlist"))
-    .dots <- lapply(rlang::ensyms(...), rlang::as_string) %>% unlist()
-  else
-    .dots <- unlist(.dots)
+  .dots <- rlang::enexprs(...)
+  lang <- unlist(lapply(rlang::enexprs(...), is.language))
+  labels <- purrr::map_at(.dots, which(lang), eval)
 
   # select variables
-  vars <- names(.dots)
-  # get new labels
-  labels <- unname(.dots)
+  vars <- names(labels)
 
   # non-matching column names
   non.vars <- which(!(vars %in% colnames(x)))
@@ -33,7 +29,14 @@ var_labels <- function(x, ...) {
 
   # set label for all variables
   for (i in seq_len(length(vars))) {
-    attr(x[[vars[i]]], "label") <- labels[i]
+    x[[vars[i]]] <- set_labels_helper(
+      x = x[[vars[i]]],
+      labels = labels[[i]],
+      force.labels = force.labels,
+      force.values = force.values,
+      drop.na = drop.na,
+      var.name = vars[i]
+    )
   }
 
   # return data

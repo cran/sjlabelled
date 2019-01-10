@@ -1,3 +1,18 @@
+# sjlabelled 1.0.16
+
+## General
+
+* Started adding test-units.
+* Minor code revisions to avoid errors during CRAN check for current devel-versions of R.
+
+## New functions
+
+* `val_labels()` as counterpart to `var_labels()`, to set value labels, with support for quasi-quotation (see Examples).
+
+## Changes to functions
+
+* `var_labels()` now supports quasi-quotation (see Examples).
+
 # sjlabelled 1.0.15
 
 ## General
