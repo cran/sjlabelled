@@ -28,7 +28,9 @@ value labels. For numeric factor levels, values labels will be used,
 if present. See 'Examples' and \code{\link{set_labels}} for more details.}
 
 \item{use.labels}{Logical, if \code{TRUE} and \code{x} has numeric value labels,
-these value labels will be set as numeric values.}
+the values defined in the labels (right-hand side of \code{labels}, for instance
+\code{labels = c(null = 0, one = 1)}) will be set as numeric values (instead
+of consecutive factor level numbers). See 'Examples'.}
 }
 \value{
 A numeric variable with values ranging either from \code{start.at} to
@@ -93,7 +95,9 @@ efc$e17age <- as.factor(efc$e17age)
 as_numeric(efc, e16sex, e17age)
 
 x <- factor(c("None", "Little", "Some", "Lots"))
-x <- set_labels(x, labels = c("0.5", "1.3", "1.8", ".2"))
+x <- set_labels(x,
+  labels = c(None = "0.5", Little = "1.3", Some = "1.8", Lots = ".2")
+)
 x
 as_numeric(x)
 as_numeric(x, use.labels = TRUE)

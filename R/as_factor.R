@@ -74,16 +74,24 @@
 #'
 #' @export
 as_factor <- function(x, ..., add.non.labelled = FALSE) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+  UseMethod("as_factor")
+}
 
-  if (is.data.frame(x)) {
-    # iterate variables of data frame
-    for (i in colnames(.dat)) {
-      x[[i]] <- to_fac_helper(.dat[[i]], add.non.labelled)
-    }
-  } else {
-    x <- to_fac_helper(.dat, add.non.labelled)
+
+#' @export
+as_factor.default <- function(x, ..., add.non.labelled = FALSE) {
+  .dat <- get_dot_data(x, rlang::quos(...))
+  to_fac_helper(.dat, add.non.labelled)
+}
+
+
+#' @export
+as_factor.data.frame <- function(x, ..., add.non.labelled = FALSE) {
+  # evaluate arguments, generate data
+  .dat <- get_dot_data(x, rlang::quos(...))
+
+  for (i in colnames(.dat)) {
+    x[[i]] <- to_fac_helper(.dat[[i]], add.non.labelled)
   }
 
   x

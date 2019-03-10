@@ -6,15 +6,17 @@
 #' a numeric variable.
 #'
 #' @param start.at Starting index, i.e. the lowest numeric value of the variable's
-#'          value range. By default, this argument is \code{NULL}, hence the lowest
-#'          value of the returned numeric variable corresponds to the lowest factor
-#'          level (if factor levels are numeric) or to \code{1} (if factor levels
-#'          are not numeric).
+#'   value range. By default, this argument is \code{NULL}, hence the lowest
+#'   value of the returned numeric variable corresponds to the lowest factor
+#'   level (if factor levels are numeric) or to \code{1} (if factor levels
+#'   are not numeric).
 #' @param keep.labels Logical, if \code{TRUE}, former factor levels will be added as
-#'          value labels. For numeric factor levels, values labels will be used,
-#'          if present. See 'Examples' and \code{\link{set_labels}} for more details.
+#'   value labels. For numeric factor levels, values labels will be used,
+#'   if present. See 'Examples' and \code{\link{set_labels}} for more details.
 #' @param use.labels Logical, if \code{TRUE} and \code{x} has numeric value labels,
-#'          these value labels will be set as numeric values.
+#'   the values defined in the labels (right-hand side of \code{labels}, for instance
+#'   \code{labels = c(null = 0, one = 1)}) will be set as numeric values (instead
+#'   of consecutive factor level numbers). See 'Examples'.
 #'
 #' @return A numeric variable with values ranging either from \code{start.at} to
 #'           \code{start.at} + length of factor levels, or to the corresponding
@@ -75,7 +77,9 @@
 #' as_numeric(efc, e16sex, e17age)
 #'
 #' x <- factor(c("None", "Little", "Some", "Lots"))
-#' x <- set_labels(x, labels = c("0.5", "1.3", "1.8", ".2"))
+#' x <- set_labels(x,
+#'   labels = c(None = "0.5", Little = "1.3", Some = "1.8", Lots = ".2")
+#' )
 #' x
 #' as_numeric(x)
 #' as_numeric(x, use.labels = TRUE)
@@ -83,16 +87,25 @@
 #'
 #' @export
 as_numeric <- function(x, ..., start.at = NULL, keep.labels = TRUE, use.labels = FALSE) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+  UseMethod("as_numeric")
+}
 
-  if (is.data.frame(x)) {
-    # iterate variables of data frame
-    for (i in colnames(.dat)) {
-      x[[i]] <- as_numeric_helper(.dat[[i]], start.at, keep.labels, use.labels)
-    }
-  } else {
-    x <- as_numeric_helper(.dat, start.at, keep.labels, use.labels)
+
+#' @export
+as_numeric.default <- function(x, ..., start.at = NULL, keep.labels = TRUE, use.labels = FALSE) {
+  .dat <- get_dot_data(x, rlang::quos(...))
+  as_numeric_helper(.dat, start.at, keep.labels, use.labels)
+}
+
+
+#' @export
+as_numeric.data.frame <- function(x, ..., start.at = NULL, keep.labels = TRUE, use.labels = FALSE) {
+  # evaluate arguments, generate data
+  .dat <- get_dot_data(x, rlang::quos(...))
+
+  # iterate variables of data frame
+  for (i in colnames(.dat)) {
+    x[[i]] <- as_numeric_helper(.dat[[i]], start.at, keep.labels, use.labels)
   }
 
   x
@@ -110,9 +123,6 @@ as_numeric_helper <- function(x, start.at, keep.labels, use.labels) {
 
   # get labels
   labels <- get_labels(x, attr.only = T, values = "n")
-
-  # get values, if these should be used after converting
-  values <- get_values(x)
 
   # is character?
   if (is.character(x)) {
@@ -166,7 +176,7 @@ as_numeric_helper <- function(x, start.at, keep.labels, use.labels) {
     # numeric and 'use.labels = TRUE', value labels as used
     # as values
     if (use.labels) {
-      levels(x) <- values
+      levels(x) <- get_values(x)
     } else {
       # check start.at value
       if (is.null(start.at)) start.at <- 1

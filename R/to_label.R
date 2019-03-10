@@ -2,28 +2,31 @@
 #' @name as_label
 #'
 #' @description \code{as_label()} converts (replaces) values of a variable (also of factors
-#'                or character vectors) with their associated value labels. Might
-#'                be helpful for factor variables.
-#'                For instance, if you have a Gender variable with 0/1 value, and associated
-#'                labels are male/female, this function would convert all 0 to male and
-#'                all 1 to female and returns the new variable as factor.
-#'                \code{as_character()} does the same as \code{as_label()}, but returns
-#'                a character vector.
+#'    or character vectors) with their associated value labels. Might
+#'    be helpful for factor variables.
+#'    For instance, if you have a Gender variable with 0/1 value, and associated
+#'    labels are male/female, this function would convert all 0 to male and
+#'    all 1 to female and returns the new variable as factor.
+#'    \code{as_character()} does the same as \code{as_label()}, but returns
+#'    a character vector.
 #'
 #' @param add.non.labelled Logical, if \code{TRUE}, values without associated
-#'          value label will also be converted to labels (as is). See 'Examples'.
+#'    value label will also be converted to labels (as is). See 'Examples'.
 #' @param prefix Logical, if \code{TRUE}, the value labels used as factor levels
-#'          or character values will be prefixed with their associated values. See 'Examples'.
+#'    or character values will be prefixed with their associated values. See 'Examples'.
 #' @param var.label Optional string, to set variable label attribute for the
-#'          returned variable (see vignette \href{../doc/intro_sjlabelled.html}{Labelled Data and the sjlabelled-Package}).
-#'          If \code{NULL} (default), variable label attribute of \code{x} will
-#'          be used (if present). If empty, variable label attributes will be removed.
+#'    returned variable (see vignette \href{../doc/intro_sjlabelled.html}{Labelled Data and the sjlabelled-Package}).
+#'    If \code{NULL} (default), variable label attribute of \code{x} will
+#'    be used (if present). If empty, variable label attributes will be removed.
 #' @param drop.na Logical, if \code{TRUE}, tagged \code{NA} values with value labels
-#'          will be converted to regular NA's. Else, tagged \code{NA} values will be replaced
-#'          with their value labels. See 'Examples' and \code{\link{get_na}}.
+#'    will be converted to regular NA's. Else, tagged \code{NA} values will be replaced
+#'    with their value labels. See 'Examples' and \code{\link{get_na}}.
 #' @param drop.levels Logical, if \code{TRUE}, unused factor levels will be
-#'          dropped (i.e. \code{\link{droplevels}} will be applied before returning
-#'          the result).
+#'    dropped (i.e. \code{\link{droplevels}} will be applied before returning
+#'    the result).
+#' @param keep.labels Logical, if \code{TRUE}, value labels are preserved This
+#'    allows users to quickly convert back factors to numeric vectors with
+#'    \code{as_numeric()}.
 #'
 #' @inheritParams add_labels
 #'
@@ -54,6 +57,7 @@
 #' # structure of numeric values won't be changed
 #' # by this function, it only applies to labelled vectors
 #' # (typically categorical or factor variables)
+#'
 #' str(efc$e17age)
 #' str(as_label(efc$e17age))
 #'
@@ -70,25 +74,34 @@
 #' # create vector
 #' x <- c(1, 2, 3, 2, 4, NA)
 #' # add less labels than values
-#' x <- set_labels(x,
-#'                 labels = c("yes", "maybe", "no"),
-#'                 force.labels = FALSE,
-#'                 force.values = FALSE)
+#' x <- set_labels(
+#'   x,
+#'   labels = c("yes", "maybe", "no"),
+#'   force.labels = FALSE,
+#'   force.values = FALSE
+#' )
+#'
 #' # convert to label w/o non-labelled values
 #' as_label(x)
+#'
 #' # convert to label, including non-labelled values
 #' as_label(x, add.non.labelled = TRUE)
 #'
 #'
 #' # create labelled integer, with missing flag
 #' library(haven)
-#' x <- labelled(c(1:3, tagged_na("a", "c", "z"), 4:1, 2:3),
-#'               c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
-#'                 "Refused" = tagged_na("a"), "Not home" = tagged_na("z")))
+#' x <- labelled(
+#'   c(1:3, tagged_na("a", "c", "z"), 4:1, 2:3),
+#'   c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
+#'     "Refused" = tagged_na("a"), "Not home" = tagged_na("z"))
+#' )
+#'
 #' # to labelled factor, with missing labels
 #' as_label(x, drop.na = FALSE)
+#'
 #' # to labelled factor, missings removed
 #' as_label(x, drop.na = TRUE)
+#'
 #' # keep missings, and use non-labelled values as well
 #' as_label(x, add.non.labelled = TRUE, drop.na = FALSE)
 #'
@@ -113,29 +126,56 @@
 #' as_label(x, var.label = "New variable label!", drop.levels = TRUE)
 #'
 #'
+#' # convert to numeric and back again, preserving label attributes
+#' # *and* values in numeric vector
+#' x <- c(0, 1, 0, 4)
+#' x <- set_labels(x, labels = c(`null` = 0, `one` = 1, `four` = 4))
+#'
+#' # to factor
+#' as_label(x)
+#'
+#' # to factor, back to numeric - values are 1, 2 and 3,
+#' # instead of original 0, 1 and 4
+#' as_numeric(as_label(x))
+#'
+#' # preserve label-attributes when converting to factor, use these attributes
+#' # to restore original numeric values when converting back to numeric
+#' as_numeric(as_label(x, keep.labels = TRUE), use.labels = TRUE)
+#'
+#'
 #' # easily coerce specific variables in a data frame to factor
 #' # and keep other variables, with their class preserved
 #' as_label(efc, e42dep, e16sex, c172code)
 #'
 #' @export
-as_label <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+as_label <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE, keep.labels = FALSE) {
+  UseMethod("as_label")
+}
 
-  if (is.data.frame(x)) {
-    # iterate variables of data frame
-    for (i in colnames(.dat)) {
-      x[[i]] <- as_label_helper(.dat[[i]], add.non.labelled, prefix, var.label, drop.na, drop.levels)
-    }
-  } else {
-    x <- as_label_helper(.dat, add.non.labelled, prefix, var.label, drop.na, drop.levels)
+
+#' @export
+as_label.default <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE, keep.labels = FALSE) {
+  .dat <- get_dot_data(x, rlang::quos(...))
+  as_label_helper(.dat, add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels)
+}
+
+
+#' @export
+as_label.data.frame <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE, keep.labels = FALSE) {
+  # evaluate arguments, generate data
+  .dat <- get_dot_data(x, rlang::quos(...))
+
+  # iterate variables of data frame
+  for (i in colnames(.dat)) {
+    x[[i]] <- as_label_helper(.dat[[i]], add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels)
   }
 
   x
 }
 
+
 #' @importFrom haven na_tag is_tagged_na
-as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, drop.levels) {
+as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels) {
   # prefix labels?
   if (prefix)
     iv <- "p"
@@ -147,6 +187,9 @@ as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, dro
     var_lab <- get_label(x)
   else
     var_lab <- var.label
+
+  # get labels
+  labels <- NULL
 
   # keep missings?
   if (!drop.na) {
@@ -182,9 +225,13 @@ as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, dro
   # return variable "as is"
   if (!is.null(vl)) {
     # get associated values for value labels
-    vnn <- get_labels(x, attr.only = TRUE, values = "n",
-                      non.labelled = add.non.labelled,
-                      drop.na = drop.na)
+    vnn <- labels <- get_labels(
+      x,
+      attr.only = TRUE,
+      values = "n",
+      non.labelled = add.non.labelled,
+      drop.na = drop.na
+    )
 
     # convert to numeric
     vn <- suppressWarnings(as.numeric(names(vnn)))
@@ -214,6 +261,15 @@ as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, dro
   # set back variable labels
   if (!is.null(var_lab)) x <- suppressWarnings(set_label(x, label = var_lab))
 
+  # check if we should set back former variable and value labels
+  if (keep.labels && !prefix) {
+    labels.names <- names(labels)
+    labels.values <- unname(labels)
+    labels <- labels.names
+    names(labels) <- labels.values
+    x <- set_labels(x, labels = labels, force.labels = T)
+  }
+
   # return as factor
   x
 }
@@ -223,7 +279,7 @@ as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, dro
 #' @export
 as_character <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE) {
   # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+  .dat <- get_dot_data(x, rlang::quos(...))
 
   # get variable labels
   vl <- get_label(x)
@@ -232,10 +288,10 @@ as_character <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.l
 
     # iterate variables of data frame
     for (i in colnames(.dat)) {
-      x[[i]] <- as.character(as_label_helper(.dat[[i]], add.non.labelled, prefix, var.label, drop.na, drop.levels))
+      x[[i]] <- as.character(as_label_helper(.dat[[i]], add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels = FALSE))
     }
   } else {
-    x <- as.character(as_label_helper(.dat, add.non.labelled, prefix, var.label, drop.na, drop.levels))
+    x <- as.character(as_label_helper(.dat, add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels = FALSE))
   }
 
   # set back variable labels, if any

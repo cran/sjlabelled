@@ -117,7 +117,7 @@
 #' @export
 zap_labels <- function(x, ...) {
   # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+  .dat <- get_dot_data(x, rlang::quos(...))
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -137,7 +137,7 @@ zap_labels <- function(x, ...) {
 #' @export
 zap_unlabelled <- function(x, ...) {
   # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+  .dat <- get_dot_data(x, rlang::quos(...))
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -187,7 +187,7 @@ zap_unlabelled <- function(x, ...) {
 #' @export
 zap_na_tags <- function(x, ...) {
   # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+  .dat <- get_dot_data(x, rlang::quos(...))
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -205,7 +205,7 @@ zap_na_tags <- function(x, ...) {
 
 
 zap_labels_helper <- function(x) {
-  x <- set.na(x, na = get_values(x, drop.na = T))
+  x <- set_na(x, na = get_values(x, drop.na = T))
 
   # remove label attributes
   attr(x, "label") <- NULL
@@ -216,7 +216,7 @@ zap_labels_helper <- function(x) {
 
 zap_unlabelled_helper <- function(x) {
   vals <- get_values(x)
-  x <- set.na(x, na = stats::na.omit(unique(x)[!unique(x) %in% vals]))
+  x <- set_na(x, na = stats::na.omit(unique(x)[!unique(x) %in% vals]))
   if (is_labelled(x)) class(x) <- NULL
   x
 }

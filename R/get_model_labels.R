@@ -60,7 +60,7 @@
 #' get_dv_labels(fit)
 #'
 #' @importFrom purrr map flatten_chr
-#' @importFrom broom tidy
+#' @importFrom insight find_parameters get_data
 #' @importFrom stats model.frame coef terms
 #' @importFrom dplyr select slice
 #' @export
@@ -68,25 +68,12 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
 
   prefix <- match.arg(prefix)
 
-  ## TODO better handling for stanmvreg
-
-  if (inherits(models, "stanmvreg")) {
-    return(
-      stats::terms(models) %>%
-        purrr::map(~ attr(.x, "term.labels")) %>%
-        purrr::flatten_chr()
-    )
-  }
-
   # to be generic, make sure argument is a list
   if (!inherits(models, "list")) models <- list(models)
 
-  # TODO tidyr for non-supported models
-
-
   # get model terms and model frame
-  m <- try(purrr::map(models, ~ dplyr::slice(tidy_models(.x), -1)), silent = TRUE)
-  mf <- try(purrr::map(models, ~ dplyr::select(get_model_frame(.x), -1)), silent = TRUE)
+  m <- try(purrr::map(models, ~ insight::find_predictors(.x, flatten = TRUE)), silent = TRUE)
+  mf <- try(purrr::map(models, ~ dplyr::select(insight::get_data(.x), -1)), silent = TRUE)
 
   # return NULL on error
   if (inherits(m, "try-error") || inherits(mf, "try-error")) {
@@ -97,8 +84,8 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
   # get all variable labels for predictors
 
   lbs1 <- purrr::map(1:length(m), function(x) {
-    if (is.null(m[[x]])) {
-      names(stats::coef(models[[x]]))[-1]
+    if (is.null(mf[[x]])) {
+      m[[x]][-1]
     } else {
       get_label(mf[[x]], def.value = colnames(mf[[x]]))
     }
@@ -255,7 +242,7 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
       models,
       intercepts.names,
       function(x, y) {
-        m <- get_model_frame(x)
+        m <- insight::get_data(x)
         if (mv && inherits(x, "brmsfit"))
           colnames(m) <- gsub(pattern = "_", replacement = "", x = colnames(m), fixed = TRUE)
         y <- y[obj_has_name(m, y)]
@@ -296,26 +283,4 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
   if (!mv && length(lbs) > length(models)) lbs <- "Dependent variable"
 
   convert_case(lbs, case, ...)
-}
-
-
-#' @importFrom purrr reduce
-#' @importFrom dplyr full_join
-#' @importFrom prediction find_data
-#' @importFrom stats model.frame
-get_model_frame <- function(x) {
-  if (inherits(x, c("vgam", "gee", "gls")))
-    fitfram <- prediction::find_data(x)
-  else if (inherits(x, "lme"))
-    fitfram <- x$data
-  else if (inherits(x, "Zelig-relogit"))
-    fitfram <- x$zelig.out$z.out[[1]]$data
-  else if (inherits(x, "stanmvreg"))
-    fitfram <- suppressMessages(
-      purrr::reduce(stats::model.frame(x), ~ dplyr::full_join(.x, .y))
-    )
-  else
-    fitfram <- stats::model.frame(x)
-
-  fitfram
 }

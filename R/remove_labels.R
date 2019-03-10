@@ -4,10 +4,11 @@ remove_labels <- function(x, ..., labels) {
   # check for valid value. value must be a named vector
   if (is.null(labels)) stop("`labels` is NULL.", call. = F)
   # if value is NA, it must be tagged
-  if (is.na(labels) && !haven::is_tagged_na(labels)) stop("`labels` must be a tagged NA.", call. = F)
+  na.labels <- labels[is.na(labels)]
+  if (length(na.labels) && !all(haven::is_tagged_na(na.labels))) stop("`labels` must be a tagged NA.", call. = F)
 
   # evaluate arguments, generate data
-  .dat <- get_dot_data(x, dplyr::quos(...))
+  .dat <- get_dot_data(x, rlang::quos(...))
 
   if (is.data.frame(x)) {
     # iterate variables of data frame

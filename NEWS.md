@@ -1,3 +1,22 @@
+# sjlabelled 1.0.17
+
+## General
+
+* Reduce package dependencies.
+* New package-vignette on quasiquotation.
+
+## New functions
+
+* Re-implement `set_na()`, to define (labelled) `NA`-values in a vector.
+
+## Changes to functions
+
+* `as_label()` gets a `keep.labels`-argument. With this, users can easily convert vector to factors and vice versa, preserving label-attributes.
+
+## Bug fixes
+
+* Fixed bug with argument `use.labels` in `as_numeric()`.
+
 # sjlabelled 1.0.16
 
 ## General
