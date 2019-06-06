@@ -62,7 +62,6 @@
 #' @importFrom purrr map flatten_chr
 #' @importFrom insight find_parameters get_data
 #' @importFrom stats model.frame coef terms
-#' @importFrom dplyr select slice
 #' @export
 get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("none", "varname", "label"), ...) {
 
@@ -72,8 +71,8 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
   if (!inherits(models, "list")) models <- list(models)
 
   # get model terms and model frame
-  m <- try(purrr::map(models, ~ insight::find_predictors(.x, flatten = TRUE)), silent = TRUE)
-  mf <- try(purrr::map(models, ~ dplyr::select(insight::get_data(.x), -1)), silent = TRUE)
+  m <- try(lapply(models, function(.x) insight::find_predictors(.x, flatten = TRUE)), silent = TRUE)
+  mf <- try(lapply(models, function(.x) insight::get_data(.x)[, -1, drop = FALSE]), silent = TRUE)
 
   # return NULL on error
   if (inherits(m, "try-error") || inherits(mf, "try-error")) {
@@ -83,7 +82,7 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
 
   # get all variable labels for predictors
 
-  lbs1 <- purrr::map(1:length(m), function(x) {
+  lbs1 <- lapply(1:length(m), function(x) {
     if (is.null(mf[[x]])) {
       m[[x]][-1]
     } else {
@@ -202,7 +201,7 @@ prepare.labels <- function(x, catval, style = c("varname", "label")) {
 
 #' @rdname get_term_labels
 #' @importFrom purrr map map2 flatten_chr
-#' @importFrom dplyr pull select
+#' @importFrom tidyselect vars_select
 #' @importFrom stats model.frame
 #' @export
 get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, ...) {
@@ -246,10 +245,12 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
         if (mv && inherits(x, "brmsfit"))
           colnames(m) <- gsub(pattern = "_", replacement = "", x = colnames(m), fixed = TRUE)
         y <- y[obj_has_name(m, y)]
-        if (length(y) > 0)
-          dplyr::select(m, !! y)
-        else
+        if (length(y) > 0) {
+          vars <- tidyselect::vars_select(colnames(m), !! y)
+          m[, vars, drop = FALSE]
+        } else {
           m[[1]]
+        }
       }
     )},
     error = function(x) { NULL },

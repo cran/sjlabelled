@@ -123,11 +123,9 @@ labels <- list(
 tmp <- set_labels(tmp, labels = labels)
 str(tmp)
 
-## ----echo=FALSE, message=FALSE-------------------------------------------
+## ----message=FALSE-------------------------------------------------------
 library(dplyr)
 library(sjmisc) # for frq()
-
-## ------------------------------------------------------------------------
 data(efc)
 
 efc %>% 
@@ -227,6 +225,7 @@ get_na(x)
 get_na(x, as.tag = TRUE)
 
 ## ------------------------------------------------------------------------
+library(sjmisc) # for replace_na()
 data(efc)
 str(efc$c84cop3)
 
