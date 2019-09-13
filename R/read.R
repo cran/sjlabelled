@@ -10,6 +10,8 @@
 #' @param atomic.to.fac Logical, if \code{TRUE}, categorical variables imported
 #'    from the dataset (which are imported as \code{atomic}) will be
 #'    converted to factors.
+#' @param drop.labels Logical, if \code{TRUE}, unused value labels are removed. See
+#'   \code{\link{drop_labels}}.
 #' @param tag.na Logical, if \code{TRUE}, missing values are imported
 #'    as \code{\link[haven]{tagged_na}} values; else, missing values are
 #'    converted to regular \code{NA} (default behaviour).
@@ -52,7 +54,7 @@
 #'
 #' @importFrom haven read_sav read_sas read_dta
 #' @export
-read_spss <- function(path, atomic.to.fac = FALSE, tag.na = FALSE, enc = NULL, verbose = TRUE) {
+read_spss <- function(path, atomic.to.fac = FALSE, drop.labels = FALSE, tag.na = FALSE, enc = NULL, verbose = TRUE) {
   # read data file
   data.spss <- haven::read_sav(file = path, encoding = enc, user_na = tag.na)
   # prepare tagged NA?
@@ -147,26 +149,77 @@ read_spss <- function(path, atomic.to.fac = FALSE, tag.na = FALSE, enc = NULL, v
     }
   }
 
-  # convert to sjPlot
-  data.spss <- unlabel(data.spss, verbose = verbose)
+  .read_postprocessing(data.spss, atomic.to.fac, drop.labels, verbose)
+}
+
+
+#' @rdname read_spss
+#' @export
+read_sas <- function(path, path.cat = NULL, atomic.to.fac = FALSE, drop.labels = FALSE, enc = NULL, verbose = TRUE) {
+  # read data file
+  data <- haven::read_sas(data_file = path, catalog_file = path.cat, encoding = enc)
+
+  # find all-NA values
+  len <- nrow(data)
+  all_missings <- names(which(unlist(lapply(data, function(x) sum(is.na(x)) == len)) == TRUE))
+
+  # do we have any "all-missing-variables"?
+  if (!isempty(all_missings)) {
+    message(sprintf("Following %i variables have only missing values:", length(all_missings)))
+    cat(paste(all_missings, collapse = ", "))
+    cat("\n")
+  }
+
+  .read_postprocessing(data, atomic.to.fac, drop.labels, verbose)
+}
+
+
+#' @rdname read_spss
+#' @export
+read_stata <- function(path, atomic.to.fac = FALSE, drop.labels = FALSE, enc = NULL, verbose = TRUE) {
+  # read data file
+  data <- haven::read_dta(file = path, encoding = enc)
+
+  # find all-NA values
+  len <- nrow(data)
+  all_missings <- names(which(unlist(lapply(data, function(x) sum(is.na(x)) == len)) == TRUE))
+
+  # do we have any "all-missing-variables"?
+  if (!isempty(all_missings)) {
+    message(sprintf("Following %i variables have only missing values:", length(all_missings)))
+    cat(paste(all_missings, collapse = ", "))
+    cat("\n")
+  }
+
+  .read_postprocessing(data, atomic.to.fac, drop.labels, verbose)
+}
+
+
+.read_postprocessing <- function(data, atomic.to.fac, drop.labels, verbose) {
+  # remove label attributes
+  d <- unlabel(data, verbose = verbose)
+
+  # drop unused labels
+  if (drop.labels) d <- drop_labels(d)
 
   # convert atomic values to factors
-  if (atomic.to.fac) data.spss <- atomic_to_fac(data.spss)
+  if (atomic.to.fac) d <- .atomic_to_fac(d)
 
   # return data frame
-  data.spss
+  d
 }
+
 
 
 # converts atomic numeric vectors into factors with
 # numerical factor levels
-atomic_to_fac <- function(data.spss) {
+.atomic_to_fac <- function(d) {
   # tell user...
   message("Converting atomic to factors. Please wait...\n")
   # iterate all columns
 
   lapply(
-    data.spss,
+    d,
     function(x) {
       # capture value labels attribute first
       labs <- attr(x, "labels", exact = T)
@@ -186,132 +239,20 @@ atomic_to_fac <- function(data.spss) {
         if (!is.null(lab)) attr(x, "label") <- lab
       }
       x
-  }) %>%
-    as.data.frame()
+    }) %>%
+    as.data.frame(stringsAsFactors = FALSE)
 }
 
 
+#' @importFrom tools file_ext
 #' @rdname read_spss
 #' @export
-read_sas <- function(path, path.cat = NULL, atomic.to.fac = FALSE, enc = NULL, verbose = TRUE) {
-  # read data file
-  data <- haven::read_sas(data_file = path, catalog_file = path.cat, encoding = enc)
-
-  # find all-NA values
-  len <- nrow(data)
-  all_missings <- names(which(unlist(lapply(data, function(x) sum(is.na(x)) == len)) == TRUE))
-
-  # do we have any "all-missing-variables"?
-  if (!isempty(all_missings)) {
-    message(sprintf("Following %i variables have only missing values:", length(all_missings)))
-    cat(paste(all_missings, collapse = ", "))
-    cat("\n")
-  }
-
-  # convert to sjPlot
-  data <- unlabel(data, verbose = verbose)
-
-  # convert atomic values to factors
-  if (atomic.to.fac) data <- atomic_to_fac(data)
-
-  # return data frame
-  data
-}
-
-
-#' @rdname read_spss
-#' @export
-read_stata <- function(path, atomic.to.fac = FALSE, enc = NULL, verbose = TRUE) {
-  # read data file
-  data <- haven::read_dta(file = path, encoding = enc)
-
-  # find all-NA values
-  len <- nrow(data)
-  all_missings <- names(which(unlist(lapply(data, function(x) sum(is.na(x)) == len)) == TRUE))
-
-  # do we have any "all-missing-variables"?
-  if (!isempty(all_missings)) {
-    message(sprintf("Following %i variables have only missing values:", length(all_missings)))
-    cat(paste(all_missings, collapse = ", "))
-    cat("\n")
-  }
-
-  # convert to sjPlot
-  data <- unlabel(data, verbose = verbose)
-
-  # convert atomic values to factors
-  if (atomic.to.fac) data <- atomic_to_fac(data)
-
-  # return data frame
-  data
-}
-
-
-#' @title Write data to other statistical software packages
-#' @name write_spss
-#'
-#' @description These functions write the content of a data frame to an SPSS, SAS or
-#'                Stata-file.
-#'
-#' @param x A data frame that should be saved as file.
-#' @param path File path of the output file.
-#' @param version File version to use. Supports versions 8-14.
-#' @param drop.na Logical, if \code{TRUE}, tagged \code{NA} values with value labels
-#'          will be converted to regular NA's. Else, tagged \code{NA} values will be replaced
-#'          with their value labels. See 'Examples' and \code{\link{get_na}}.
-#'
-#' @export
-write_spss <- function(x, path, drop.na = FALSE) {
-  write_data(x = x, path = path, type = "spss", version = 14, drop.na = drop.na)
-}
-
-
-#' @rdname write_spss
-#' @export
-write_stata <- function(x, path, drop.na = FALSE, version = 14) {
-  write_data(x = x, path = path, type = "stata", version = version, drop.na = drop.na)
-}
-
-
-#' @rdname write_spss
-#' @export
-write_sas <- function(x, path, drop.na = FALSE) {
-  write_data(x = x, path = path, type = "sas", version = 14, drop.na = drop.na)
-}
-
-
-#' @importFrom purrr map
-#' @importFrom haven write_sav write_dta write_sas
-write_data <- function(x, path, type, version, drop.na) {
-  # make sure to have tidy labels
-  message("Tidying value labels. Please wait...")
-  x <- tidy_labels(x)
-
-  # convert data to labelled
-  # x <- as_label(x, add.non.labelled = T, drop.na = drop.na)
-  x <- as_labelled(x, add.labels = TRUE)
-
-  # check for correct column names
-  for (i in seq_len(ncol(x))) {
-    # check column name
-    end.point <- colnames(x)[i]
-    # if it ends with a dot, add a char. dot is invalid last char for SPSS
-    if (substr(end.point, nchar(end.point), nchar(end.point)) == ".") {
-      colnames(x)[i] <- paste0(end.point, i)
-    }
-  }
-
-  # tell user
-  message(sprintf("Writing %s file to '%s'. Please wait...", type, path))
-
-  if (type == "spss") {
-    # write SPSS
-    haven::write_sav(data = x, path = path)
-  } else if (type == "stata") {
-    # write Stata
-    haven::write_dta(data = x, path = path, version = version)
-  } else if (type == "sas") {
-    # write Stata
-    haven::write_sas(data = x, path = path)
-  }
+read_data <- function(path, atomic.to.fac = FALSE, drop.labels = FALSE, enc = NULL, verbose = TRUE) {
+  switch(
+    tools::file_ext(path),
+    "sav" = ,
+    "por" = read_spss(path = path, atomic.to.fac = atomic.to.fac, drop.labels = drop.labels, enc = enc, verbose = verbose),
+    "dta" = read_stata(path = path, atomic.to.fac = atomic.to.fac, drop.labels = drop.labels, enc = enc, verbose = verbose),
+    read_sas(path = path, atomic.to.fac = atomic.to.fac, drop.labels = drop.labels, enc = enc, verbose = verbose)
+  )
 }
