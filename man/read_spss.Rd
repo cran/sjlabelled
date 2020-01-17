@@ -7,17 +7,39 @@
 \alias{read_data}
 \title{Import data from other statistical software packages}
 \usage{
-read_spss(path, atomic.to.fac = FALSE, drop.labels = FALSE,
-  tag.na = FALSE, enc = NULL, verbose = TRUE)
+read_spss(
+  path,
+  atomic.to.fac = FALSE,
+  drop.labels = FALSE,
+  tag.na = FALSE,
+  enc = NULL,
+  verbose = FALSE
+)
 
-read_sas(path, path.cat = NULL, atomic.to.fac = FALSE,
-  drop.labels = FALSE, enc = NULL, verbose = TRUE)
+read_sas(
+  path,
+  path.cat = NULL,
+  atomic.to.fac = FALSE,
+  drop.labels = FALSE,
+  enc = NULL,
+  verbose = FALSE
+)
 
-read_stata(path, atomic.to.fac = FALSE, drop.labels = FALSE,
-  enc = NULL, verbose = TRUE)
+read_stata(
+  path,
+  atomic.to.fac = FALSE,
+  drop.labels = FALSE,
+  enc = NULL,
+  verbose = FALSE
+)
 
-read_data(path, atomic.to.fac = FALSE, drop.labels = FALSE,
-  enc = NULL, verbose = TRUE)
+read_data(
+  path,
+  atomic.to.fac = FALSE,
+  drop.labels = FALSE,
+  enc = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{path}{File path to the data file.}
@@ -78,7 +100,6 @@ mydat.var <- get_label(mydat)
 
 # retrieve value labels
 mydat.val <- get_labels(mydat)}
-
 }
 \seealso{
 Vignette \href{../doc/intro_sjlabelled.html}{Labelled Data and the sjlabelled-Package}.

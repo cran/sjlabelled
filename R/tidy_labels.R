@@ -20,6 +20,7 @@
 #'
 #' @examples
 #' library(sjmisc)
+#' set.seed(123)
 #' x <- set_labels(
 #'   sample(1:5, size = 20, replace = TRUE),
 #'   labels = c("low" = 1, ".." = 2, ".." = 3, ".." = 4, "high" = 5)
@@ -37,8 +38,8 @@
 #'
 #' @export
 tidy_labels <- function(x, ..., sep = "_", remove = FALSE) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -53,7 +54,6 @@ tidy_labels <- function(x, ..., sep = "_", remove = FALSE) {
 }
 
 
-#' @importFrom purrr map as_vector
 tidy_labels_helper <- function(x, sep, remove) {
   # get value labels from variable. drop unused labels
   labs <-
@@ -78,9 +78,8 @@ tidy_labels_helper <- function(x, sep, remove) {
   if (isempty(duped.val)) return(x)
 
   # find position of duplicated labels
-  dupes <- duped.val %>%
-    purrr::map(~which(labs == .x)) %>%
-    purrr::as_vector(.type = "double")
+  dupes <- lapply(duped.val, function(.x) which(labs == .x))
+  dupes <- as.vector(unlist(dupes))
 
   if (remove) {
     # replace labels with value

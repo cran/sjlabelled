@@ -4,8 +4,14 @@
 \alias{get_labels}
 \title{Retrieve value labels of labelled data}
 \usage{
-get_labels(x, attr.only = FALSE, values = NULL, non.labelled = FALSE,
-  drop.na = TRUE, drop.unused = FALSE)
+get_labels(
+  x,
+  attr.only = FALSE,
+  values = NULL,
+  non.labelled = FALSE,
+  drop.na = TRUE,
+  drop.unused = FALSE
+)
 }
 \arguments{
 \item{x}{A data frame with variables that have value label attributes (e.g.
@@ -121,7 +127,6 @@ efc$e42dep <- set_labels(
 get_labels(efc$e42dep)
 get_labels(efc$e42dep, drop.unused = TRUE)
 get_labels(efc$e42dep, non.labelled = TRUE, drop.unused = TRUE)
-
 }
 \seealso{
 See vignette \href{../doc/intro_sjlabelled.html}{Labelled Data and the sjlabelled-Package}

@@ -58,6 +58,7 @@ get_label(efc$e42dep)
 get_label(efc)["e42dep"]
 
 # 'get_label()' also works within pipe-chains
+library(magrittr)
 efc \%>\% get_label(e42dep, e16sex)
 
 # set default values
@@ -77,7 +78,6 @@ get_label(list(efc$e42dep, efc$e16sex, efc$e15relat))
 data(iris)
 get_label(iris, def.value = colnames(iris))
 get_label(iris, def.value = colnames(iris), case = "parsed")
-
 }
 \seealso{
 See vignette \href{../doc/intro_sjlabelled.html}{Labelled Data and the sjlabelled-Package}

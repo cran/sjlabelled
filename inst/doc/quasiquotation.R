@@ -1,7 +1,7 @@
-## ----echo = FALSE--------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
-## ----message=FALSE, warning=FALSE----------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 library(sjlabelled)
 library(sjmisc) # for frq()-function
 library(rlang)
@@ -28,19 +28,19 @@ test <- set_labels(
 
 frq(test)
 
-## ----message=FALSE, warning=FALSE----------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 test <- val_labels(dummies, dummy1 = c("low", "mid", "hi"))
 attr(test$dummy1, "labels")
 
 # remaining variables are not labelled
 frq(test)
 
-## ----message=FALSE, warning=FALSE----------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 labels <- c("low_quote", "mid_quote", "hi_quote")
 test <- val_labels(dummies, dummy1 = !! labels)
 attr(test$dummy1, "labels")
 
-## ----message=FALSE, warning=FALSE----------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 variable <- "dummy2"
 test <- val_labels(dummies, !! variable := c("lo_var", "mid_var", "high_var"))
 
@@ -50,13 +50,13 @@ attr(test$dummy1, "labels")
 # value labels
 attr(test$dummy2, "labels")
 
-## ----message=FALSE, warning=FALSE----------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 variable <- "dummy3"
 labels <- c("low", "mid", "hi")
 test <- val_labels(dummies, !! variable := !! labels)
 attr(test$dummy3, "labels")
 
-## ----message=FALSE, warning=FALSE----------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 dummy <- data.frame(
   a = sample(1:4, 10, replace = TRUE),
   b = sample(1:4, 10, replace = TRUE),

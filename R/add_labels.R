@@ -40,7 +40,6 @@
 #'
 #' @examples
 #' # add_labels()
-
 #' data(efc)
 #' get_labels(efc$e42dep)
 #'
@@ -93,8 +92,6 @@
 #' # get current NA values
 #' get_na(x)
 #' get_na(remove_labels(x, labels = tagged_na("c")))
-#'
-#' @importFrom rlang quos
 #' @export
 add_labels <- function(x, ..., labels) {
 
@@ -103,7 +100,8 @@ add_labels <- function(x, ..., labels) {
   if (is.null(names(labels))) stop("`labels` must be a named vector.", call. = F)
 
   # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -117,7 +115,6 @@ add_labels <- function(x, ..., labels) {
   x
 }
 
-#' @importFrom haven is_tagged_na na_tag
 add_labels_helper <- function(x, value) {
   # get current labels of `x`
   current.labels <- get_labels(
@@ -156,26 +153,28 @@ add_labels_helper <- function(x, value) {
     all.labels <- value
   }
 
-  # replace tagged NA
-  if (any(haven::is_tagged_na(value))) {
-    # get tagged NAs
-    value_tag <- haven::na_tag(value)[haven::is_tagged_na(value)]
-    cna_tag <- haven::na_tag(current.na)
+  if (requireNamespace("haven", quietly = TRUE)) {
+    # replace tagged NA
+    if (any(haven::is_tagged_na(value))) {
+      # get tagged NAs
+      value_tag <- haven::na_tag(value)[haven::is_tagged_na(value)]
+      cna_tag <- haven::na_tag(current.na)
 
-    # find matches (replaced NA), i.e. see if 'x' has any
-    # tagged NA values that match the tagged NA specified in 'value'
-    doubles <- na.omit(match(value_tag, cna_tag))
+      # find matches (replaced NA), i.e. see if 'x' has any
+      # tagged NA values that match the tagged NA specified in 'value'
+      doubles <- na.omit(match(value_tag, cna_tag))
 
-    # tell user if we found any tagged NA, and that these will be replaced
-    if (any(doubles)) {
-      message(sprintf(
-        "tagged NA '%s' was replaced with new value label.\n",
-        names(current.na)[doubles]
-      ))
+      # tell user if we found any tagged NA, and that these will be replaced
+      if (any(doubles)) {
+        message(sprintf(
+          "tagged NA '%s' was replaced with new value label.\n",
+          names(current.na)[doubles]
+        ))
+      }
+
+      # remove multiple tagged NA
+      current.na <- current.na[-doubles]
     }
-
-    # remove multiple tagged NA
-    current.na <- current.na[-doubles]
   }
 
   # sort labels by values

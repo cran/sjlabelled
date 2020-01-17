@@ -112,7 +112,6 @@
 #' get_labels(efc$e42dep)
 #' get_labels(efc$e42dep, drop.unused = TRUE)
 #' get_labels(efc$e42dep, non.labelled = TRUE, drop.unused = TRUE)
-#'
 #' @export
 get_labels <- function(x, attr.only = FALSE, values = NULL,
                        non.labelled = FALSE, drop.na = TRUE, drop.unused = FALSE) {
@@ -171,6 +170,12 @@ get_labels_helper <- function(x, attr.only, include.values, include.non.labelled
       }
     }
   } else {
+
+    ## TODO enable later
+    # if (!requireNamespace("haven", quietly = TRUE)) {
+    #   stop("Package 'haven' required for this function. Please install it.")
+    # }
+
     # drop na?
     if (drop.na) labels <- labels[!haven::is_tagged_na(labels)]
 

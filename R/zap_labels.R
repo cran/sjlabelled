@@ -112,12 +112,11 @@
 #' get_labels(fill_labels(x))
 #' # same as
 #' get_labels(x, non.labelled = TRUE)
-#'
 #' @importFrom stats na.omit
 #' @export
 zap_labels <- function(x, ...) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -136,8 +135,8 @@ zap_labels <- function(x, ...) {
 #' @importFrom stats na.omit
 #' @export
 zap_unlabelled <- function(x, ...) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -182,12 +181,11 @@ zap_unlabelled <- function(x, ...) {
 #' x <- c(1:5, tagged_na("a"), tagged_na("z"), NA)
 #' haven::print_tagged_na(x)
 #' haven::print_tagged_na(zap_na_tags(x))
-#'
 #' @importFrom stats na.omit
 #' @export
 zap_na_tags <- function(x, ...) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -222,6 +220,10 @@ zap_unlabelled_helper <- function(x) {
 }
 
 zap_na_tags_helper <- function(x) {
+  if (!requireNamespace("haven", quietly = TRUE)) {
+    stop("Package 'haven' required for this function. Please install it.")
+  }
+
   # check if values has only NA's
   if (sum(is.na(x)) == length(x)) return(x)
   # convert all NA, including tagged NA, into regular NA

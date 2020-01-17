@@ -1,7 +1,3 @@
-#' @importFrom magrittr %>%
-#' @export
-magrittr::`%>%`
-
 data_frame <- function(...) {
   x <- data.frame(..., stringsAsFactors = FALSE)
   rownames(x) <- NULL
@@ -10,17 +6,6 @@ data_frame <- function(...) {
 
 # do we have a stan-model?
 is.stan <- function(x) inherits(x, c("stanreg", "stanfit", "brmsfit"))
-
-#' @importFrom rlang is_empty
-#' @importFrom tidyselect vars_select
-get_dot_data <- function(x, qs) {
-  if (rlang::is_empty(qs))
-    x
-  else {
-    vars <- suppressWarnings(tidyselect::vars_select(colnames(x), !!!qs))
-    x[, vars, drop = FALSE]
-  }
-}
 
 # return names of objects passed as ellipses argument
 dot_names <- function(dots) unname(unlist(lapply(dots, as.character)))
@@ -35,6 +20,9 @@ is.num.fac <- function(x) {
 }
 
 
+.compact_list <- function(x) x[!sapply(x, function(i) length(i) == 0 || is.null(i) || any(i == "NULL"))]
+
+
 #' @importFrom stats na.omit
 is.num.chr <- function(x, na.rm = FALSE) {
   # check if we have numeric character values only
@@ -43,7 +31,6 @@ is.num.chr <- function(x, na.rm = FALSE) {
 }
 
 
-#' @importFrom purrr compact
 isempty <- function(x, first.only = TRUE) {
   # do we have a valid vector?
   if (!is.null(x)) {
@@ -69,7 +56,7 @@ isempty <- function(x, first.only = TRUE) {
       }
       # we have a non-character vector here. check for length
     } else if (is.list(x)) {
-      x <- purrr::compact(x)
+      x <- .compact_list(x)
       zero_len <- length(x) == 0
     } else {
       zero_len <- length(x) == 0

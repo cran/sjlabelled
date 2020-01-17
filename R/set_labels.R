@@ -161,6 +161,7 @@
 #'
 #' # using quasi-quotation
 #' library(rlang)
+#' library(dplyr)
 #' x1 <- "dummy1"
 #' x2 <- c("so low", "rather low", "mid", "very hi")
 #'
@@ -178,7 +179,6 @@
 #'     !!x1 := c("really low" = 1, "low" = 3, "a bit mid" = 2, "hi" = 4),
 #'     dummy3 = !!x2
 #'   ) %>% get_labels(values = "p")
-#'
 #' @export
 set_labels <- function(x, ...,
                        labels,
@@ -186,8 +186,8 @@ set_labels <- function(x, ...,
                        force.values = TRUE,
                        drop.na = TRUE) {
 
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   # special handling for data frames
   if (is.data.frame(x)) {
@@ -285,7 +285,11 @@ set_labels_helper <- function(x, labels, force.labels, force.values, drop.na, va
 
       # determine amount of labels and unique values
       lablen <- length(labels)
-      values <- sort(unique(stats::na.omit(as.vector(x))))
+      values <- unique(stats::na.omit(as.vector(x)))
+      if (.is_num_chr(values) || .is_num_fac(values)) {
+        values <- as.numeric(values)
+      }
+      values <- sort(values)
 
       # set var name string
       if (isempty(var.name)) {
@@ -301,6 +305,9 @@ set_labels_helper <- function(x, labels, force.labels, force.values, drop.na, va
         # check if we have named vector. in this
         # case, just add these values
       } else if (!is.null(names(labels))) {
+        if (!requireNamespace("haven", quietly = TRUE)) {
+          stop("Package 'haven' required for this function. Please install it.")
+        }
         # check names and value attributes. value labels
         # and values might be reversed
         if (!anyNA(suppressWarnings(as.numeric(names(labels)))) &&

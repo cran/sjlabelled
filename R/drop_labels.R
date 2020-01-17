@@ -1,8 +1,8 @@
 #' @rdname zap_labels
 #' @export
 drop_labels <- function(x, ..., drop.na = TRUE) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -17,6 +17,9 @@ drop_labels <- function(x, ..., drop.na = TRUE) {
 }
 
 drop_labels_helper <- function(x, drop.na) {
+  if (!requireNamespace("haven", quietly = TRUE)) {
+    stop("Package 'haven' required for this function. Please install it.")
+  }
   # retrieve named labels
   tidy.labels <- attr(x, "labels", exact = T)
   tidy.labels <- tidy.labels[!haven::is_tagged_na(tidy.labels)]

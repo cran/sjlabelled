@@ -1,3 +1,24 @@
+# sjlabelled 1.1.2
+
+## General
+
+* Reduce package dependencies.
+* `get_dv_labels()` was renamed to `response_labels()`. `get_dv_labels()` will remain as alias.
+* `get_term_labels()` was renamed to `term_labels()`. `get_term_labels()` will remain as alias.
+
+## New functions
+
+* `label_to_colnames()` as a convenient shortcut to set variable labels as column names.
+
+## Changes to functions
+
+* `copy_labels` gets a `...`-argument to copy only specific variables values.
+* The `read_*()` functions are now less verbose by default.
+
+## Bug fixes
+
+* Fixed issue in `set_labels()` for character vectors with numeric char-values that are larger than `9`.
+
 # sjlabelled 1.1.1
 
 ## Changes to functions

@@ -1,6 +1,9 @@
 #' @rdname add_labels
 #' @export
 remove_labels <- function(x, ..., labels) {
+  if (!requireNamespace("haven", quietly = TRUE)) {
+    stop("Package 'haven' required for this function. Please install it.")
+  }
   # check for valid value. value must be a named vector
   if (is.null(labels)) stop("`labels` is NULL.", call. = F)
   # if value is NA, it must be tagged
@@ -8,7 +11,8 @@ remove_labels <- function(x, ..., labels) {
   if (length(na.labels) && !all(haven::is_tagged_na(na.labels))) stop("`labels` must be a tagged NA.", call. = F)
 
   # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  .dat <- .get_dot_data(x, dots)
 
   if (is.data.frame(x)) {
     # iterate variables of data frame
@@ -23,7 +27,6 @@ remove_labels <- function(x, ..., labels) {
 }
 
 
-#' @importFrom haven is_tagged_na na_tag
 remove_labels_helper <- function(x, labels) {
   # get current labels of `x`
   current.labels <- get_labels(x,
@@ -38,6 +41,10 @@ remove_labels_helper <- function(x, labels) {
   if (is.null(current.labels) && is.null(current.na)) {
     message("`x` has no value labels.")
     return(x)
+  }
+
+  if (!requireNamespace("haven", quietly = TRUE)) {
+    stop("Package 'haven' required for this function. Please install it.")
   }
 
   # remove by index?

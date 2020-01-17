@@ -1,14 +1,12 @@
 #' @title Retrieve labels of model terms from regression models
-#' @name get_term_labels
+#' @name term_labels
 #'
 #' @description This function retrieves variable labels from model terms. In case
 #'        of categorical variables, where one variable has multiple dummies,
 #'        variable name and category value is returned.
 #'
 #' @param models One or more fitted regression models. May also be glm's or
-#'        mixed models. Any model with \code{\link[stats]{model.frame}} method
-#'        and which is supported by \pkg{broom}'s \code{\link[broom]{tidy}}
-#'        function should work.
+#'        mixed models.
 #' @param mark.cat Logical, if \code{TRUE}, the returned vector has an
 #'        attribute with logical values, which indicate whether a label indicates
 #'        the value from a factor category (attribute value is \code{TRUE}) or
@@ -25,9 +23,9 @@
 #' @param ... Further arguments passed down to \code{\link[snakecase]{to_any_case}},
 #'        like \code{preprocess} or \code{postprocess}.
 #'
-#' @return For \code{get_term_labels()}, a (named) character vector with
+#' @return For \code{term_labels()}, a (named) character vector with
 #'         variable labels of all model terms, which can be used, for instance,
-#'         as axis labels to annotate plots. \cr \cr For \code{get_dv_labels()},
+#'         as axis labels to annotate plots. \cr \cr For \code{response_labels()},
 #'         a character vector with variable labels from all dependent variables
 #'         of \code{models}.
 #'
@@ -42,28 +40,26 @@
 #' data(efc)
 #'
 #' fit <- lm(barthtot ~ c160age + c12hour + c161sex + c172code, data = efc)
-#' get_term_labels(fit)
+#' term_labels(fit)
 #'
 #' # make "education" categorical
 #' library(sjmisc)
 #' efc$c172code <- to_factor(efc$c172code)
 #' fit <- lm(barthtot ~ c160age + c12hour + c161sex + c172code, data = efc)
-#' get_term_labels(fit)
+#' term_labels(fit)
 #'
 #' # prefix value of categorical variables with variable name
-#' get_term_labels(fit, prefix = "varname")
+#' term_labels(fit, prefix = "varname")
 #'
 #' # prefix value of categorical variables with value label
-#' get_term_labels(fit, prefix = "label")
+#' term_labels(fit, prefix = "label")
 #'
 #' # get label of dv
-#' get_dv_labels(fit)
-#'
-#' @importFrom purrr map flatten_chr
+#' response_labels(fit)
 #' @importFrom insight find_parameters get_data
 #' @importFrom stats model.frame coef terms
 #' @export
-get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("none", "varname", "label"), ...) {
+term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("none", "varname", "label"), ...) {
 
   prefix <- match.arg(prefix)
 
@@ -82,13 +78,13 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
 
   # get all variable labels for predictors
 
-  lbs1 <- lapply(1:length(m), function(x) {
+  lbs1 <- unlist(lapply(1:length(m), function(x) {
     if (is.null(mf[[x]])) {
       m[[x]][-1]
     } else {
       get_label(mf[[x]], def.value = colnames(mf[[x]]))
     }
-  }) %>% unlist()
+  }))
 
 
   # any empty name? if yes, use label as name
@@ -104,30 +100,34 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
   # for categorical predictors, we have one term per
   # value (factor level), so extract these as well
 
-  lbs2 <- purrr::map(mf, ~ purrr::map2(.x, colnames(.x), function(.x, .y) {
-    if (is.factor(.x)) {
-      l <- get_labels(.x)
-      if (!anyNA(suppressWarnings(as.numeric(l))))
-        paste0(.y, l)
-      else
-        l
-    }
-  }) %>% unlist())
+  lbs2 <- lapply(mf, function(.x) {
+    unlist(mapply(function(.x, .y) {
+      if (is.factor(.x)) {
+        l <- get_labels(.x)
+        if (!anyNA(suppressWarnings(as.numeric(l))))
+          paste0(.y, l)
+        else
+          l
+      }
+    }, .x, colnames(.x), SIMPLIFY = FALSE))
+  })
 
-  fixed.names <- purrr::map(mf, ~ purrr::map2(.x, colnames(.x), function(.x, .y) {
-    if (is.factor(.x)) paste0(.y, levels(.x))
-  }) %>% unlist())
+  fixed.names <- lapply(mf, function(.x) {
+    unlist(mapply(function(.x, .y) {
+      if (is.factor(.x)) paste0(.y, levels(.x))
+    }, .x, colnames(.x), SIMPLIFY = FALSE))
+  })
 
   # flatten, if we have any elements. in case all predictors
   # were non-factors, list has only NULLs
 
   lbs2 <- if (!is.null(unlist(lbs2)))
-    purrr::flatten_chr(lbs2)
+    as.character(unlist(lbs2))
   else
     NULL
 
   fixed.names <- if (!is.null(unlist(fixed.names)))
-    purrr::flatten_chr(fixed.names)
+    as.character(unlist(fixed.names))
   else
     NULL
 
@@ -179,6 +179,11 @@ get_term_labels <- function(models, mark.cat = FALSE, case = NULL, prefix = c("n
 }
 
 
+#' @rdname term_labels
+#' @export
+get_term_labels <- term_labels
+
+
 prepare.labels <- function(x, catval, style = c("varname", "label")) {
   x_var <- names(x[!catval])
   x_val <- names(x[catval])
@@ -199,12 +204,10 @@ prepare.labels <- function(x, catval, style = c("varname", "label")) {
 }
 
 
-#' @rdname get_term_labels
-#' @importFrom purrr map map2 flatten_chr
-#' @importFrom tidyselect vars_select
+#' @rdname term_labels
 #' @importFrom stats model.frame
 #' @export
-get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, ...) {
+response_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, ...) {
 
   if (!missing(multi.resp)) mv <- multi.resp
 
@@ -213,7 +216,7 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
 
 
   intercepts.names <- tryCatch({
-    purrr::map(models, function(x) {
+    lapply(models, function(x) {
       if (inherits(x, "brmsfit")) {
         if (is.null(stats::formula(x)$formula) && !is.null(stats::formula(x)$responses))
           if (mv)
@@ -224,9 +227,9 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
           deparse(stats::formula(x)$formula[[2L]])
       } else if (inherits(x, "stanmvreg")) {
         if (mv)
-          purrr::map_chr(stats::formula(x), ~ deparse(.x[[2L]]))
+          sapply(stats::formula(x), function(.x) deparse(.x[[2L]], width.cutoff = 500), simplify = TRUE)
         else
-          paste(purrr::map_chr(stats::formula(x), ~ deparse(.x[[2L]])), collapse = ", ")
+          paste(sapply(stats::formula(x), function(.x) deparse(.x[[2L]], width.cutoff = 500), simplify = TRUE), collapse = ", ")
       } else {
         deparse(stats::formula(x)[[2L]])
       }
@@ -237,21 +240,21 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
 
 
   mf <- tryCatch({
-    purrr::map2(
-      models,
-      intercepts.names,
+    mapply(
       function(x, y) {
         m <- insight::get_data(x)
         if (mv && inherits(x, "brmsfit"))
           colnames(m) <- gsub(pattern = "_", replacement = "", x = colnames(m), fixed = TRUE)
         y <- y[obj_has_name(m, y)]
         if (length(y) > 0) {
-          vars <- tidyselect::vars_select(colnames(m), !! y)
-          m[, vars, drop = FALSE]
+          m[, y, drop = FALSE]
         } else {
           m[[1]]
         }
-      }
+      },
+      models,
+      intercepts.names,
+      SIMPLIFY = FALSE
     )},
     error = function(x) { NULL },
     warning = function(x) { NULL }
@@ -265,16 +268,12 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
 
   # get all labels
 
-  lbs <- purrr::map2(
-    mf,
-    intercepts.names,
-    ~ get_label(.x, def.value = .y)
-  )
+  lbs <- mapply(function(.x, .y) get_label(.x, def.value = .y), mf, intercepts.names, SIMPLIFY = FALSE)
 
 
   # flatten list, and check for correct elements
 
-  lbs <- purrr::flatten_chr(lbs)
+  lbs <- as.character(unlist(lbs))
 
 
   # There are some formulas that return a rather cryptic
@@ -285,3 +284,8 @@ get_dv_labels <- function(models, case = NULL, multi.resp = FALSE, mv = FALSE, .
 
   convert_case(lbs, case, ...)
 }
+
+
+#' @rdname term_labels
+#' @export
+get_dv_labels <- response_labels

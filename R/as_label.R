@@ -146,24 +146,23 @@
 #' # easily coerce specific variables in a data frame to factor
 #' # and keep other variables, with their class preserved
 #' as_label(efc, e42dep, e16sex, c172code)
-#'
 #' @export
-as_label <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE, keep.labels = FALSE) {
+as_label <- function(x, ...) {
   UseMethod("as_label")
 }
 
 
 #' @export
-as_label.default <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE, keep.labels = FALSE) {
-  .dat <- get_dot_data(x, rlang::quos(...))
-  as_label_helper(.dat, add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels)
+as_label.default <- function(x, add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE, keep.labels = FALSE, ...) {
+  as_label_helper(x, add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels)
 }
 
 
+#' @rdname as_label
 #' @export
 as_label.data.frame <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE, keep.labels = FALSE) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
+  dots <- sapply(eval(substitute(alist(...))), deparse)
+  .dat <- .get_dot_data(x, dots)
 
   # iterate variables of data frame
   for (i in colnames(.dat)) {
@@ -174,7 +173,6 @@ as_label.data.frame <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE
 }
 
 
-#' @importFrom haven na_tag is_tagged_na
 as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels) {
   # prefix labels?
   if (prefix)
@@ -198,6 +196,9 @@ as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, dro
 
     # any NA?
     if (!is.null(current.na)) {
+      if (!requireNamespace("haven", quietly = TRUE)) {
+        stop("Package 'haven' required for this function. Please install it.")
+      }
       # we have to set all NA labels at once, else NA loses tag
       # so we prepare a dummy label-vector, where we copy all different
       # NA labels to `x` afterwards
@@ -276,31 +277,5 @@ as_label_helper <- function(x, add.non.labelled, prefix, var.label, drop.na, dro
   }
 
   # return as factor
-  x
-}
-
-
-#' @rdname as_label
-#' @export
-as_character <- function(x, ..., add.non.labelled = FALSE, prefix = FALSE, var.label = NULL, drop.na = TRUE, drop.levels = FALSE) {
-  # evaluate arguments, generate data
-  .dat <- get_dot_data(x, rlang::quos(...))
-
-  # get variable labels
-  vl <- get_label(x)
-
-  if (is.data.frame(x)) {
-
-    # iterate variables of data frame
-    for (i in colnames(.dat)) {
-      x[[i]] <- as.character(as_label_helper(.dat[[i]], add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels = FALSE))
-    }
-  } else {
-    x <- as.character(as_label_helper(.dat, add.non.labelled, prefix, var.label, drop.na, drop.levels, keep.labels = FALSE))
-  }
-
-  # set back variable labels, if any
-  if (!is.null(vl)) x <- set_label(x, vl)
-
   x
 }

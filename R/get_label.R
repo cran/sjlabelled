@@ -20,7 +20,7 @@
 #' @param def.value Optional, a character string which will be returned as label
 #'          if \code{x} has no label attribute. By default, \code{NULL} is returned.
 #'
-#' @inheritParams get_term_labels
+#' @inheritParams term_labels
 #'
 #' @return A named character vector with all variable labels from the data frame or list;
 #'           or a simple character vector (of length 1) with the variable label, if \code{x} is a variable.
@@ -50,6 +50,7 @@
 #' get_label(efc)["e42dep"]
 #'
 #' # 'get_label()' also works within pipe-chains
+#' library(magrittr)
 #' efc %>% get_label(e42dep, e16sex)
 #'
 #' # set default values
@@ -69,7 +70,6 @@
 #' data(iris)
 #' get_label(iris, def.value = colnames(iris))
 #' get_label(iris, def.value = colnames(iris), case = "parsed")
-#'
 #' @export
 get_label <- function(x, ..., def.value = NULL, case = NULL) {
   UseMethod("get_label")
@@ -78,8 +78,8 @@ get_label <- function(x, ..., def.value = NULL, case = NULL) {
 
 #' @export
 get_label.data.frame <- function(x, ..., def.value = NULL, case = NULL) {
-  # evaluate arguments, generate data
-  x <- get_dot_data(x, rlang::quos(...))
+  dots <- as.character(match.call(expand.dots = FALSE)$`...`)
+  x <- .get_dot_data(x, dots)
 
   sapply(seq_along(x), function(i) {
     # get label

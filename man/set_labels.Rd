@@ -5,11 +5,16 @@
 \alias{val_labels}
 \title{Add value labels to variables}
 \usage{
-set_labels(x, ..., labels, force.labels = FALSE, force.values = TRUE,
-  drop.na = TRUE)
+set_labels(
+  x,
+  ...,
+  labels,
+  force.labels = FALSE,
+  force.values = TRUE,
+  drop.na = TRUE
+)
 
-val_labels(x, ..., force.labels = FALSE, force.values = TRUE,
-  drop.na = TRUE)
+val_labels(x, ..., force.labels = FALSE, force.values = TRUE, drop.na = TRUE)
 }
 \arguments{
 \item{x}{A vector or data frame.}
@@ -174,6 +179,7 @@ get_labels(test)
 
 # using quasi-quotation
 library(rlang)
+library(dplyr)
 x1 <- "dummy1"
 x2 <- c("so low", "rather low", "mid", "very hi")
 
@@ -191,7 +197,6 @@ dummies \%>\%
     !!x1 := c("really low" = 1, "low" = 3, "a bit mid" = 2, "hi" = 4),
     dummy3 = !!x2
   ) \%>\% get_labels(values = "p")
-
 }
 \seealso{
 See vignette \href{../doc/intro_sjlabelled.html}{Labelled Data and the sjlabelled-Package}
