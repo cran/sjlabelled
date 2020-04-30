@@ -20,18 +20,18 @@ barplot(
 
 ## ----warning=FALSE, fig.height=6, fig.width=7---------------------------------
 barplot(
-  table(as_label(efc$e42dep),
-        as_label(efc$e16sex)), 
-  beside = T, 
-  legend.text = T
+  table(sjlabelled::as_label(efc$e42dep),
+        sjlabelled::as_label(efc$e16sex)), 
+  beside = TRUE, 
+  legend.text = TRUE
 )
 
 ## ----warning=FALSE, fig.height=6, fig.width=7---------------------------------
 barplot(
-  table(as_label(efc$e42dep),
-        as_label(efc$e16sex)), 
-  beside = T, 
-  legend.text = T,
+  table(sjlabelled::as_label(efc$e42dep),
+        sjlabelled::as_label(efc$e16sex)), 
+  beside = TRUE, 
+  legend.text = TRUE,
   main = get_label(efc$e42dep)
 )
 

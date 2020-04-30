@@ -1,5 +1,11 @@
 ## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+if (!requireNamespace("sjmisc", quietly = TRUE) ||
+    !requireNamespace("haven", quietly = TRUE) ||
+    !requireNamespace("magrittr", quietly = TRUE) ||
+    !requireNamespace("dplyr", quietly = TRUE)) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
 
 ## -----------------------------------------------------------------------------
 library(haven)

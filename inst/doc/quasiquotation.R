@@ -1,6 +1,11 @@
 ## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
+if (!requireNamespace("sjmisc", quietly = TRUE) ||
+    !requireNamespace("rlang", quietly = TRUE)) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 library(sjlabelled)
 library(sjmisc) # for frq()-function
