@@ -18,8 +18,7 @@ remove_labels(x, ..., labels)
 \item{...}{Optional, unquoted names of variables that should be selected for
 further processing. Required, if \code{x} is a data frame (and no
 vector) and only selected variables from \code{x} should be processed.
-You may also use functions like \code{:} or tidyselect's
-\code{\link[tidyselect]{select_helpers}}.
+You may also use functions like \code{:} or tidyselect's select-helpers.
 See 'Examples'.}
 
 \item{labels}{\describe{
@@ -28,7 +27,7 @@ that will be added to \code{x} as label attribute.}
 \item{For \code{remove_labels()}}{Either a numeric vector, indicating
 the position of one or more label attributes that should be removed;
 a character vector with names of label attributes that should be
-removed; or a \code{\link[haven]{tagged_na}} to remove the labels
+removed; or a \code{\link[haven:tagged_na]{tagged_na()}} to remove the labels
 from specific NA values.}
 }}
 }

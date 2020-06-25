@@ -12,8 +12,7 @@ set_na(x, ..., na, drop.levels = TRUE, as.tag = FALSE)
 \item{...}{Optional, unquoted names of variables that should be selected for
 further processing. Required, if \code{x} is a data frame (and no
 vector) and only selected variables from \code{x} should be processed.
-You may also use functions like \code{:} or tidyselect's
-\code{\link[tidyselect]{select_helpers}}.
+You may also use functions like \code{:} or tidyselect's select-helpers.
 See 'Examples'.}
 
 \item{na}{Numeric vector with values that should be replaced with NA values,
@@ -43,7 +42,7 @@ This function replaces specific values of variables with \code{NA}.
 }
 \details{
 \code{set_na()} converts all values defined in \code{na} with
-  a related \code{NA} or tagged NA value (see \code{\link[haven]{tagged_na}}).
+  a related \code{NA} or tagged NA value (see \code{\link[haven:tagged_na]{tagged_na()}}).
   Tagged \code{NA}s work exactly like regular R missing values
   except that they store one additional byte of information: a tag,
   which is usually a letter ("a" to "z") or character number ("0" to "9").

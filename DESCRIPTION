@@ -2,7 +2,7 @@ Package: sjlabelled
 Type: Package
 Encoding: UTF-8
 Title: Labelled Data Utility Functions
-Version: 1.1.5
+Version: 1.1.6
 Authors@R: c(
     person("Daniel", "Lüdecke", role = c("aut", "cre"), email = "d.luedecke@uke.de", comment = c(ORCID = "0000-0002-8895-3206")),
     person("David", "Ranzolin", role = "ctb", email = "daranzolin@gmail.com")
@@ -21,11 +21,11 @@ Suggests: dplyr, haven (>= 1.1.2), magrittr, sjmisc, sjPlot, knitr,
         rlang, rmarkdown, snakecase, testthat
 URL: https://strengejacke.github.io/sjlabelled
 BugReports: https://github.com/strengejacke/sjlabelled/issues
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.0.9000
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-05-25 08:10:44 UTC; Daniel
+Packaged: 2020-06-25 11:06:34 UTC; Daniel
 Author: Daniel Lüdecke [aut, cre] (<https://orcid.org/0000-0002-8895-3206>),
   David Ranzolin [ctb]
 Repository: CRAN
-Date/Publication: 2020-05-25 10:10:03 UTC
+Date/Publication: 2020-06-25 12:10:02 UTC
