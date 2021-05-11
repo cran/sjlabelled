@@ -34,42 +34,43 @@
 #'            a factor and uses value labels as factor levels.
 #'
 #' @examples
-#' library(sjmisc)
-#' library(magrittr)
-#' data(efc)
-#' # normal factor conversion, loses value attributes
-#' x <- as.factor(efc$e42dep)
-#' frq(x)
+#' if (require("sjmisc") && require("magrittr")) {
+#'   data(efc)
+#'   # normal factor conversion, loses value attributes
+#'   x <- as.factor(efc$e42dep)
+#'   frq(x)
 #'
-#' # factor conversion, which keeps value attributes
-#' x <- as_factor(efc$e42dep)
-#' frq(x)
+#'   # factor conversion, which keeps value attributes
+#'   x <- as_factor(efc$e42dep)
+#'   frq(x)
 #'
-#' # create parially labelled vector
-#' x <- set_labels(
-#'   efc$e42dep,
-#'   labels = c(
-#'     `1` = "independent",
-#'     `4` = "severe dependency",
-#'     `9` = "missing value"
-#'  ))
+#'   # create partially labelled vector
+#'   x <- set_labels(
+#'     efc$e42dep,
+#'     labels = c(
+#'       `1` = "independent",
+#'       `4` = "severe dependency",
+#'       `9` = "missing value"
+#'    ))
 #'
-#' # only copy existing value labels
-#' as_factor(x) %>% head()
-#' get_labels(as_factor(x), values = "p")
+#'   # only copy existing value labels
+#'   as_factor(x) %>% head()
+#'   get_labels(as_factor(x), values = "p")
 #'
-#' # also add labels to non-labelled values
-#' as_factor(x, add.non.labelled = TRUE) %>% head()
-#' get_labels(as_factor(x, add.non.labelled = TRUE), values = "p")
+#'   # also add labels to non-labelled values
+#'   as_factor(x, add.non.labelled = TRUE) %>% head()
+#'   get_labels(as_factor(x, add.non.labelled = TRUE), values = "p")
 #'
 #'
-#' # easily coerce specific variables in a data frame to factor
-#' # and keep other variables, with their class preserved
-#' as_factor(efc, e42dep, e16sex, c172code) %>% head()
+#'   # easily coerce specific variables in a data frame to factor
+#'   # and keep other variables, with their class preserved
+#'   as_factor(efc, e42dep, e16sex, c172code) %>% head()
 #'
-#' # use select-helpers from dplyr-package
-#' library(dplyr)
-#' as_factor(efc, contains("cop"), c161sex:c175empl) %>% head()
+#'   # use select-helpers from dplyr-package
+#'   if (require("dplyr")) {
+#'     as_factor(efc, contains("cop"), c161sex:c175empl) %>% head()
+#'   }
+#' }
 #' @export
 as_factor <- function(x, ...) {
   UseMethod("as_factor")
@@ -106,16 +107,19 @@ to_fac_helper <- function(x, add.non.labelled) {
   if (is.factor(x)) return(x)
 
   # retrieve value labels
-  lab <-
-    get_labels(
-      x,
-      attr.only = TRUE,
-      values = "n",
-      non.labelled = add.non.labelled
-    )
+  lab <- get_labels(
+    x,
+    attr.only = TRUE,
+    values = "n",
+    non.labelled = add.non.labelled
+  )
 
   # retrieve variable labels
-  varlab <- attr(x, "label", exact = T)
+  varlab <- attr(x, "label", exact = TRUE)
+  na_values <- attr(x, "na_values", exact = TRUE)
+  if (is.null(na_values)) {
+    na_values <- attr(x, "na.values", exact = TRUE)
+  }
 
   # switch value and names attribute, since get_labels
   # returns the values as names, and the value labels
@@ -135,18 +139,19 @@ to_fac_helper <- function(x, add.non.labelled) {
   x <- factor(x, exclude = c(NA_character_, "NaN"))
 
   # set back value labels
-  x <-
-    suppressMessages(
-      set_labels(
-        x,
-        labels = lab.switch,
-        force.labels = TRUE,
-        force.values = FALSE
-      )
+  x <- suppressMessages(
+    set_labels(
+      x,
+      labels = lab.switch,
+      force.labels = TRUE,
+      force.values = FALSE
     )
+  )
 
   # set back variable labels
   attr(x, "label") <- varlab
+  attr(x, "na_values") <- na_values
+  attr(x, "na.values") <- na_values
 
   x
 }

@@ -43,8 +43,8 @@ write_sas <- function(x, path, drop.na = FALSE) {
   x <- tidy_labels(x)
 
   # convert data to labelled
-  # x <- as_label(x, add.non.labelled = T, drop.na = drop.na)
-  x <- as_labelled(x, add.labels = TRUE, skip.strings = TRUE, add.class = TRUE)
+  # x <- as_label(x, add.non.labelled = TRUE, drop.na = drop.na)
+  x <- as_labelled(x, add.labels = TRUE, skip.strings = TRUE, add.class = TRUE, tag.na = TRUE)
 
   # check for correct column names
   for (i in seq_len(ncol(x))) {

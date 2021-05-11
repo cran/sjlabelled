@@ -29,26 +29,26 @@ value label, but will become the value label itself). The
 \description{
 Duplicated value labels in variables may cause troubles when
              saving labelled data, or computing cross tabs (cf.
-             \code{\link[sjmisc:flat_table]{flat_table()}} or \code{\link[sjPlot:plot_xtab]{plot_xtab()}}).
+             \code{sjmisc::flat_table()} or \code{sjPlot::plot_xtab()}).
              \code{tidy_labels()} repairs duplicated value labels by suffixing
              them with the associated value.
 }
 \examples{
-library(sjmisc)
-set.seed(123)
-x <- set_labels(
-  sample(1:5, size = 20, replace = TRUE),
-  labels = c("low" = 1, ".." = 2, ".." = 3, ".." = 4, "high" = 5)
-)
-frq(x)
+if (require("sjmisc")) {
+  set.seed(123)
+  x <- set_labels(
+    sample(1:5, size = 20, replace = TRUE),
+    labels = c("low" = 1, ".." = 2, ".." = 3, ".." = 4, "high" = 5)
+  )
+  frq(x)
 
-z <- tidy_labels(x)
-frq(z)
+  z <- tidy_labels(x)
+  frq(z)
 
-z <- tidy_labels(x, sep = ".")
-frq(z)
+  z <- tidy_labels(x, sep = ".")
+  frq(z)
 
-z <- tidy_labels(x, remove = TRUE)
-frq(z)
-
+  z <- tidy_labels(x, remove = TRUE)
+  frq(z)
+}
 }

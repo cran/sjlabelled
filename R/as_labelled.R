@@ -17,6 +17,10 @@
 #' @param skip.strings Logical, if \code{TRUE}, character vector are not converted
 #'   into labelled-vectors. Else, character vectors are converted to factors
 #'   vector and the associated values are used as value labels.
+#' @param tag.na Logical, if \code{TRUE}, tagged \code{NA} values are replaced
+#'   by their associated values. This is required, for instance, when writing
+#'   data back to SPSS.
+#'
 #' @return \code{x}, as \code{labelled}-class object.
 #'
 #' @examples
@@ -46,43 +50,68 @@
 #' get_values(x2)
 #' @importFrom stats na.omit
 #' @export
-as_labelled <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE) {
+as_labelled <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE, tag.na = FALSE) {
   UseMethod("as_labelled")
 }
 
 #' @export
-as_labelled.data.frame <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE) {
-  data_frame(lapply(x, FUN = as_labelled_helper, add.labels, add.class, skip.strings))
+as_labelled.data.frame <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE, tag.na = FALSE) {
+  data_frame(lapply(x, FUN = as_labelled_helper, add.labels, add.class, skip.strings, tag.na))
 }
 
 #' @export
-as_labelled.list <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE) {
-  lapply(x, FUN = as_labelled_helper, add.labels, add.class, skip.strings)
+as_labelled.list <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE, tag.na = FALSE) {
+  lapply(x, FUN = as_labelled_helper, add.labels, add.class, skip.strings, tag.na)
 }
 
 #' @export
-as_labelled.default <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE) {
-  as_labelled_helper(x, add.labels, add.class, skip.strings)
+as_labelled.default <- function(x, add.labels = FALSE, add.class = FALSE, skip.strings = FALSE, tag.na = FALSE) {
+  as_labelled_helper(x, add.labels, add.class, skip.strings, tag.na)
 }
 
-as_labelled_helper <- function(x, add.labels, add.class, skip.strings) {
+as_labelled_helper <- function(x, add.labels, add.class, skip.strings, tag.na) {
   # do nothing for labelled class
   if (is_labelled(x)) return(x)
 
   if (is.character(x) && skip.strings) return(x)
 
   # if factor, convert to numeric
-  if (is.factor(x)) x <- as_numeric(x, keep.labels = T)
+  if (is.factor(x)) x <- as_numeric(x, keep.labels = TRUE)
 
   # return atomics
-  if (is.null(get_labels(x, attr.only = T))) return(x)
+  if (is.null(get_labels(x, attr.only = TRUE))) return(x)
 
   # fill up missing attributes
   if (add.labels) x <- fill_labels(x)
 
   # reset missings
-  xna <- get_na(x)
-  if (!isempty(xna)) x <- set_na(x, na = xna)
+  if (!tag.na) {
+    xna <- get_na(x)
+    if (!isempty(xna)) {
+      x <- set_na(x, na = xna)
+    }
+  } else {
+    if (!requireNamespace("haven", quietly = TRUE)) {
+      stop("Package 'haven' required for this function. Please install it.")
+    }
+    xna <- get_na(x, as.tag = TRUE)
+    if (!isempty(xna)) {
+      labels <- attr(x, "labels", exact = TRUE)
+      new_tags <- unname(gsub("NA\\((.*)\\)", "\\1", xna))
+      names(new_tags) <- new_tags
+      # convert to numeric, if character
+      numeric_na <- which(is.na(suppressWarnings(as.numeric(new_tags))))
+      if (any(numeric_na)) {
+        names(new_tags)[numeric_na] <- match(new_tags[numeric_na], letters) * -1
+      }
+      tagged_missing <- haven::na_tag(x)
+      for (i in 1:length(xna)) {
+        x[which(tagged_missing == new_tags[i])] <- as.numeric(names(new_tags[i]))
+      }
+      labels[is.na(labels)] <- stats::setNames(attr(x, "na.values"), names(labels[is.na(labels)]))
+      attr(x, "labels") <- labels
+    }
+  }
 
   # is type of labels same as type of vector? typically, character
   # vectors can have numeric labels or vice versa, numeric vectors
@@ -106,9 +135,14 @@ as_labelled_helper <- function(x, add.labels, add.class, skip.strings) {
   # get former class attributes
   xc <- class(x)
   if (add.class)
-    class(x) <- c(xc, "haven_labelled")
+    class(x) <- c(xc, "haven_labelled", "vctrs_vctr")
   else
-    class(x) <- "haven_labelled"
+    class(x) <- c("haven_labelled", "vctrs_vctr")
+
+  # add haven labelled SPSS class
+  if (tag.na) {
+    class(x) <- c("haven_labelled_spss", class(x))
+  }
 
   x
 }

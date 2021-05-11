@@ -4,7 +4,7 @@
 #' @description This function adds labels as attribute (named \code{"labels"})
 #'    to a variable or vector \code{x}, resp. to a set of variables in a
 #'    data frame or a list-object. A use-case is, for instance, the
-#'    \CRANpkg{sjPlot}-package, which supports labelled data and automatically
+#'    \pkg{sjPlot}-package, which supports labelled data and automatically
 #'    assigns labels to axes or legends in plots or to be used in tables.
 #'    \code{val_labels()} is intended for use within pipe-workflows and has a
 #'    tidyverse-consistent syntax, including support for quasi-quotation
@@ -64,121 +64,129 @@
 #'         Furthermore, see 'Note' in \code{\link{get_labels}}.
 #'
 #' @examples
-#' library(sjmisc)
-#' dummy <- sample(1:4, 40, replace = TRUE)
-#' frq(dummy)
+#' if (require("sjmisc")) {
+#'   dummy <- sample(1:4, 40, replace = TRUE)
+#'   frq(dummy)
 #'
-#' dummy <- set_labels(dummy, labels = c("very low", "low", "mid", "hi"))
-#' frq(dummy)
+#'   dummy <- set_labels(dummy, labels = c("very low", "low", "mid", "hi"))
+#'   frq(dummy)
 #'
-#' # assign labels with named vector
-#' dummy <- sample(1:4, 40, replace = TRUE)
-#' dummy <- set_labels(dummy, labels = c("very low" = 1, "very high" = 4))
-#' frq(dummy)
+#'   # assign labels with named vector
+#'   dummy <- sample(1:4, 40, replace = TRUE)
+#'   dummy <- set_labels(dummy, labels = c("very low" = 1, "very high" = 4))
+#'   frq(dummy)
 #'
-#' # force using all labels, even if not all labels
-#' # have associated values in vector
-#' x <- c(2, 2, 3, 3, 2)
-#' # only two value labels
-#' x <- set_labels(x, labels = c("1", "2", "3"))
-#' x
-#' frq(x)
+#'   # force using all labels, even if not all labels
+#'   # have associated values in vector
+#'   x <- c(2, 2, 3, 3, 2)
+#'   # only two value labels
+#'   x <- set_labels(x, labels = c("1", "2", "3"))
+#'   x
+#'   frq(x)
 #'
-#' # all three value labels
-#' x <- set_labels(x, labels = c("1", "2", "3"), force.labels = TRUE)
-#' x
-#' frq(x)
+#'   # all three value labels
+#'   x <- set_labels(x, labels = c("1", "2", "3"), force.labels = TRUE)
+#'   x
+#'   frq(x)
 #'
-#' # create vector
-#' x <- c(1, 2, 3, 2, 4, NA)
-#' # add less labels than values
-#' x <- set_labels(x, labels = c("yes", "maybe", "no"), force.values = FALSE)
-#' x
-#' # add all necessary labels
-#' x <- set_labels(x, labels = c("yes", "maybe", "no"), force.values = TRUE)
-#' x
+#'   # create vector
+#'   x <- c(1, 2, 3, 2, 4, NA)
+#'   # add less labels than values
+#'   x <- set_labels(x, labels = c("yes", "maybe", "no"), force.values = FALSE)
+#'   x
+#'   # add all necessary labels
+#'   x <- set_labels(x, labels = c("yes", "maybe", "no"), force.values = TRUE)
+#'   x
 #'
-#' # set labels and missings
-#' x <- c(1, 1, 1, 2, 2, -2, 3, 3, 3, 3, 3, 9)
-#' x <- set_labels(x, labels = c("Refused", "One", "Two", "Three", "Missing"))
-#' x
-#' set_na(x, na = c(-2, 9))
-#'
-#'
-#' library(haven)
-#' x <- labelled(
-#'   c(1:3, tagged_na("a", "c", "z"), 4:1),
-#'   c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
-#'     "Refused" = tagged_na("a"), "Not home" = tagged_na("z"))
-#' )
-#' # get current NA values
-#' x
-#' get_na(x)
-#' # lose value labels from tagged NA by default, if not specified
-#' set_labels(x, labels = c("New Three" = 3))
-#' # do not drop na
-#' set_labels(x, labels = c("New Three" = 3), drop.na = FALSE)
+#'   # set labels and missings
+#'   x <- c(1, 1, 1, 2, 2, -2, 3, 3, 3, 3, 3, 9)
+#'   x <- set_labels(x, labels = c("Refused", "One", "Two", "Three", "Missing"))
+#'   x
+#'   set_na(x, na = c(-2, 9))
+#' }
 #'
 #'
-#' # set labels via named vector,
-#' # not using all possible values
-#' data(efc)
-#' get_labels(efc$e42dep)
-#'
-#' x <- set_labels(
-#'   efc$e42dep,
-#'   labels = c(`independent` = 1,
-#'              `severe dependency` = 2,
-#'              `missing value` = 9)
+#' if (require("haven") && require("sjmisc")) {
+#'   x <- labelled(
+#'     c(1:3, tagged_na("a", "c", "z"), 4:1),
+#'     c("Agreement" = 1, "Disagreement" = 4, "First" = tagged_na("c"),
+#'       "Refused" = tagged_na("a"), "Not home" = tagged_na("z"))
 #'   )
-#' get_labels(x, values = "p")
-#' get_labels(x, values = "p", non.labelled = TRUE)
+#'   # get current NA values
+#'   x
+#'   get_na(x)
+#'   # lose value labels from tagged NA by default, if not specified
+#'   set_labels(x, labels = c("New Three" = 3))
+#'   # do not drop na
+#'   set_labels(x, labels = c("New Three" = 3), drop.na = FALSE)
 #'
-#' # labels can also be set for tagged NA value
-#' # create numeric vector
-#' x <- c(1, 2, 3, 4)
-#' # set 2 and 3 as missing, which will automatically set as
-#' # tagged NA by 'set_na()'
-#' x <- set_na(x, na = c(2, 3))
-#' x
-#' # set label via named vector just for tagged NA(3)
-#' set_labels(x, labels = c(`New Value` = tagged_na("3")))
 #'
-#' # setting same value labels to multiple vectors
-#' dummies <- data.frame(
-#'   dummy1 = sample(1:4, 40, replace = TRUE),
-#'   dummy2 = sample(1:4, 40, replace = TRUE),
-#'   dummy3 = sample(1:4, 40, replace = TRUE)
-#' )
+#'   # set labels via named vector,
+#'   # not using all possible values
+#'   data(efc)
+#'   get_labels(efc$e42dep)
 #'
-#' # and set same value labels for two of three variables
-#' test <- set_labels(
-#'   dummies, dummy1, dummy2,
-#'   labels = c("very low", "low", "mid", "hi")
-#' )
-#' # see result...
-#' get_labels(test)
+#'   x <- set_labels(
+#'     efc$e42dep,
+#'     labels = c(`independent` = 1,
+#'                `severe dependency` = 2,
+#'                `missing value` = 9)
+#'     )
+#'   get_labels(x, values = "p")
+#'   get_labels(x, values = "p", non.labelled = TRUE)
+#'
+#'   # labels can also be set for tagged NA value
+#'   # create numeric vector
+#'   x <- c(1, 2, 3, 4)
+#'   # set 2 and 3 as missing, which will automatically set as
+#'   # tagged NA by 'set_na()'
+#'   x <- set_na(x, na = c(2, 3))
+#'   x
+#'   # set label via named vector just for tagged NA(3)
+#'   set_labels(x, labels = c(`New Value` = tagged_na("3")))
+#'
+#'   # setting same value labels to multiple vectors
+#'   dummies <- data.frame(
+#'     dummy1 = sample(1:4, 40, replace = TRUE),
+#'     dummy2 = sample(1:4, 40, replace = TRUE),
+#'     dummy3 = sample(1:4, 40, replace = TRUE)
+#'   )
+#'
+#'   # and set same value labels for two of three variables
+#'   test <- set_labels(
+#'     dummies, dummy1, dummy2,
+#'     labels = c("very low", "low", "mid", "hi")
+#'   )
+#'   # see result...
+#'   get_labels(test)
+#' }
 #'
 #' # using quasi-quotation
-#' library(rlang)
-#' library(dplyr)
-#' x1 <- "dummy1"
-#' x2 <- c("so low", "rather low", "mid", "very hi")
+#' if (require("rlang") && require("dplyr")) {
+#'   dummies <- data.frame(
+#'     dummy1 = sample(1:4, 40, replace = TRUE),
+#'     dummy2 = sample(1:4, 40, replace = TRUE),
+#'     dummy3 = sample(1:4, 40, replace = TRUE)
+#'   )
 #'
-#' dummies %>%
-#'   val_labels(
-#'     !!x1 := c("really low", "low", "a bit mid", "hi"),
-#'     dummy3 = !!x2
-#'   ) %>%
-#'   get_labels()
+#'   x1 <- "dummy1"
+#'   x2 <- c("so low", "rather low", "mid", "very hi")
 #'
-#' # ... and named vectors to explicetly set value labels
-#' x2 <- c("so low" = 4, "rather low" = 3, "mid" = 2, "very hi" = 1)
-#' dummies %>%
-#'   val_labels(
-#'     !!x1 := c("really low" = 1, "low" = 3, "a bit mid" = 2, "hi" = 4),
-#'     dummy3 = !!x2
-#'   ) %>% get_labels(values = "p")
+#'   dummies %>%
+#'     val_labels(
+#'       !!x1 := c("really low", "low", "a bit mid", "hi"),
+#'       dummy3 = !!x2
+#'     ) %>%
+#'     get_labels()
+#'
+#'   # ... and named vectors to explicitly set value labels
+#'   x2 <- c("so low" = 4, "rather low" = 3, "mid" = 2, "very hi" = 1)
+#'   dummies %>%
+#'     val_labels(
+#'       !!x1 := c("really low" = 1, "low" = 3, "a bit mid" = 2, "hi" = 4),
+#'       dummy3 = !!x2
+#'     ) %>% get_labels(values = "p")
+#' }
 #' @export
 set_labels <- function(x, ...,
                        labels,
@@ -240,8 +248,8 @@ set_labels_helper <- function(x, labels, force.labels, force.values, drop.na, va
   if (is.null(labels) || length(labels) == 0) return(x)
 
   # valid vector?
-  if (is.null(x) || all(is.na(x))) {
-    warning("Can't add value labels to NULL vectors or vector with only missing values.", call. = FALSE)
+  if (is.null(x)) {
+    warning("Can't add value labels to NULL vectors", call. = FALSE)
     return(x)
   }
 
@@ -251,7 +259,7 @@ set_labels_helper <- function(x, labels, force.labels, force.values, drop.na, va
   # check for null
   if (!is.null(labels)) {
     # if labels is empty string, remove labels attribute
-    if (length(labels) == 1 && nchar(labels, keepNA = F) == 0) {
+    if (length(labels) == 1 && nchar(labels, keepNA = FALSE) == 0) {
       attr(x, "labels") <- NULL
 
       # set labels for character vectors here!
@@ -262,13 +270,14 @@ set_labels_helper <- function(x, labels, force.labels, force.values, drop.na, va
         dummy.labels <- names(labels)
         # but first check if we have named vector or not...
         if (is.null(dummy.labels)) {
-          warning("`labels` must be a named vector.", call. = T)
+          warning("`labels` must be a named vector.", call. = TRUE)
         } else {
-          names(dummy.labels) <- unname(labels)
-          attr(x, "labels") <- dummy.labels
+          # names(dummy.labels) <- unname(labels)
+          # attr(x, "labels") <- dummy.labels
+          attr(x, "labels") <- labels
         }
       } else {
-        warning("Character vectors can only get labels of same type.", call. = T)
+        warning("Character vectors can only get labels of same type.", call. = TRUE)
       }
 
       # set labels for numeric vectors or factors here
@@ -402,7 +411,7 @@ set_labels_helper <- function(x, labels, force.labels, force.values, drop.na, va
     }
     # keep NA's?
     if (!drop.na && !is.null(current.na) && length(current.na) > 0)
-      attr(x, "labels") <- c(attr(x, "labels", exact = T), current.na)
+      attr(x, "labels") <- c(attr(x, "labels", exact = TRUE), current.na)
   }
 
   x
@@ -422,7 +431,7 @@ get_value_range <- function(x) {
     } else {
       # levels are not numeric. we need to convert them
       # first to retrieve minimum level, as numeric
-      minval <- min(as.numeric(levels(x)), na.rm = T)
+      minval <- min(as.numeric(levels(x)), na.rm = TRUE)
 
       # check range, add minimum, so we have max
       maxval <- diff(range(as.numeric(levels(x)))) + minval
@@ -433,13 +442,22 @@ get_value_range <- function(x) {
     # amount of unique string values
     minval <- 1
     maxval <- length(unique(stats::na.omit(x)))
-  } else {
+  } else if (all(is.na(x))) {
+      minval <- 0
+      maxval <- 0
+  }else {
     # retrieve values
     minval <- as.numeric(min(x, na.rm = TRUE))
     maxval <- as.numeric(max(x, na.rm = TRUE))
   }
+
   # determine value range
-  valrange <- maxval - minval + 1
+  if (all(is.na(x))) {
+    valrange <- 0
+  } else{
+    valrange <- maxval - minval + 1
+  }
+
   # return all
   list(
     minval = minval,
