@@ -1,3 +1,19 @@
+# sjlabelled 1.2.0
+
+## Breaking
+
+* The `atomic.to.fac` argument was renamed to `convert.factors`. Furthermore,
+  this argument now defaults to `TRUE`.
+
+## Changes to functions
+
+* `write_*()` functions now remove variables with completely missing data, to
+  avoid errors when writing the data file.
+
+## Bug fixes
+
+* Fixed issue in `write_*()` functions when labelled data was of type integer.
+
 # sjlabelled 1.1.8
 
 ## Changes to functions
